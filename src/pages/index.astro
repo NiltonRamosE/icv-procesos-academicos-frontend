@@ -1,24 +1,15 @@
 ---
 import ProtectedLayout from '@/layouts/ProtectedLayout.astro';
-
+const robots = ["index", "follow"];
+const title = "Incadev - Instituto de Capacitación y Desarrollo Virtual";
+const description = "Incadev es un instituto que ofrece servicios de capacitación y desarrollo virtual para estudiantes y profesionales.";
+const keywords = ["Incadev", "Instituto de Capacitación y Desarrollo Virtual", "Capacitación", "Desarrollo Virtual", "Estudiantes", "Profesionales"];
+const url = "https://icv-procesos-academicos-frontend.vercel.app/";
+const imageOG = "";
+const imagetwt = "";
 ---
 
-<ProtectedLayout>
-	<h1 class="text-3xl font-bold underline text-theme-keppel">
-		Hello world!
-	</h1>
-	<h1 class="text-3xl font-bold underline text-theme-rich-black">
-		Hello world!
-	</h1>
-	<h1 class="text-3xl font-bold underline text-theme-seasalt">
-		Hello world!
-	</h1>
-	<h1 class="text-3xl font-bold underline text-theme-gray">
-		Hello world!
-	</h1>
-	<h1 class="text-3xl font-bold underline text-theme-blue">
-		Hello world!
-	</h1>
+<ProtectedLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
 	<h1 class="text-3xl font-bold underline text-theme-berkeley-blue">
 		Hello world!
 	</h1>
