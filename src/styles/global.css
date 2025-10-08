@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+    --color-theme-dark-purple: #201A2F;
+    --color-theme-black: #000000;
+    --color-theme-night: #111115;
+    --color-theme-gray: #848282;
+    --color-theme-smoky-black: #0F0F02;
+    --color-theme-berkeley-blue: #1b355a;
+    --color-theme-deep-sky-blue: #26BBFF;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+@keyframes waveMove {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.wave-animation {
+  animation: waveMove 8s linear infinite;
+}
+
+@keyframes moveCirculara {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes moveCircularb {
+  0% {
+    transform: translateX(0%) translateY(0);
+  }
+
+  100% {
+    transform: translateX(200%) translateY(0);
+  }
+}
+
+@keyframes navbar-animation-fade-in{
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navbar-animation-fade-out{
+  0% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+
+.navbar-animation-in {
+  animation: navbar-animation-fade-in 0.6s ease-in-out ;
+}
+.navbar-animation-out{
+  animation: navbar-animation-fade-out 0.6s ease-in-out;
+}
+
+.animate-circular-a {
+  animation: moveCirculara 10s infinite linear;
+}
+.animate-circular-b {
+  animation: moveCircularb 10s infinite linear;
+}
