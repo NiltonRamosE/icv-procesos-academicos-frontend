@@ -68,9 +68,43 @@ export function Login() {
     },
   })
 
-  console.log(`${config.apiUrl}${config.endpoints.auth.login}`);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const response = {
+        ok: true,
+        json: async () => ({
+          message: "Inicio de sesión exitoso",
+          token: "fake-jwt-token",
+        }),
+      };
+      /* const response = await fetch(`${config.apiUrl}${config.endpoints.auth.login}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      }); */
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Login response:", responseData);
+        // localStorage.setItem("token", responseData.token);
+
+        toast("¡Inicio de sesión exitoso!", {
+          description: "Redirigiendo a tu dashboard.",
+        });
+        window.location.href = "/dashboard/cursos";
+      } else {
+        const errorData = await response.json();
+        toast.error(`Error: ${errorData.message || "Algo salió mal."}`);
+      }
+    } catch (error) {
+      toast.error("Hubo un error al conectar con el servidor.");
+    }
+
     toast("You submitted the following values", {
       description: (
         <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
