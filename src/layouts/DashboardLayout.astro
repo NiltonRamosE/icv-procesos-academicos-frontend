@@ -1,0 +1,80 @@
+---
+import "@/styles/global.css";
+import {Navbar} from "@/shared/Navbar";
+export interface SEOFields {
+	robots: string[];
+    title: string;
+    description: string;
+    keywords: string[];
+    url: string;
+    imageOG: string;
+	imagetwt: string;
+}
+
+const { 
+	robots = [],
+	title = "", 
+	description = "", 
+	keywords = [], 
+	url="",
+	imageOG = "",
+    imagetwt = ""
+} = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+		/>
+		<meta name="robots" content={robots.join(", ")} />
+		<meta http-equiv="Content-Language" content="es" />
+		<meta name="author" content="Grupo02" />
+		<meta name="copyright" content="© 2025 Grupo02" />
+
+		<!-- Primary Meta Tags -->
+		<title>{title}</title>
+		<meta name="title" content={title} />
+		<meta name="description" content={description} />
+		<meta name="keywords" content={keywords.join(", ")} />
+		<meta name="theme-color" content="#FFFFFF" />
+
+		<link rel="canonical" href={url} />
+		<link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={imageOG} />
+		<meta property="og:type" content="website" />
+		<meta property="og:locale" content="es_ES" />
+		<meta property="og:url" content={url} />
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={imagetwt} />
+		<meta name="twitter:site" content="@institutocapacitacionpe" />
+		<meta name="twitter:creator" content="@institutocapacitacionpe" />
+
+	</head>
+	<body class="min-h-screen flex flex-col bg-theme-night">
+        <Navbar client:load />
+		<main class="flex-grow">
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style>
+	html,
+	body {
+		padding: 0px;
+		margin: 0px;
+		width: 100%;
+		height: 100%;
+	}
+</style>

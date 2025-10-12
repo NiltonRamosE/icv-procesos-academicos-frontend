@@ -1,5 +1,5 @@
 ---
-import ProtectedLayout from '@/layouts/ProtectedLayout.astro';
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
 import { DashboardICV } from '@/dashboard/Dashboard';
 const robots = ["index", "follow"];
 const title = "Dashboard";
@@ -10,6 +10,6 @@ const imageOG = "/incadev_isologotipo.webp";
 const imagetwt = "/incadev_isologotipo.webp";
 ---
 
-<ProtectedLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
 	<DashboardICV client:load/>
-</ProtectedLayout>
+</DashboardLayout>
