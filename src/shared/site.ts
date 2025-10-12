@@ -1,3 +1,34 @@
+import {
+  BookOpen,
+  Bot,
+  type LucideIcon,
+} from "lucide-react"
+import {
+  IconDatabase,
+  IconReport,
+  IconHelp,
+  IconSearch,
+  IconSettings,
+  type Icon
+} from "@tabler/icons-react"
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  items?: {
+    title: string;
+    url: string;
+  }[];
+}
+
+interface NavSimpleItem {
+  title: string;
+  url: string;
+  icon: Icon;
+}
+
 export const siteConfig = {
   name: "INSTITUTO DE CAPACITACIÓN VIRTUAL EN EL PERÚ - PROCESOS ACADÉMICOS",
   description:
@@ -16,79 +47,86 @@ export const siteConfig = {
   ],
 };
 
-const urlHome = "/docs";
-export const navHomeItems: { title: string; href: string; description: string }[] = [
-  {
-    title: "Introduction",
-    href: `${urlHome}`,
-    description:
-      "Re-usable components built using Radix UI and Tailwind CSS.",
-  },
-  {
-    title: "Installation",
-    href: `${urlHome}/installation`,
-    description:
-      "How to install dependencies and structure your app.",
-  },
-  {
-    title: "Typography",
-    href: `${urlHome}/primitives/typography`,
-    description:
-      "Styles for headings, paragraphs, lists...etc",
-  },
-]
-
 const urlManagementGroup = "/dashboard/gestion-grupos";
-export const navManagementGroupItems: { title: string; href: string; description: string }[] = [
-  {
-    title: "Anuncios",
-    href: `${urlManagementGroup}/#1`,
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Evaluaciones",
-    href: `${urlManagementGroup}/#2`,
-    description:
-      "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Calificaciones",
-    href: `${urlManagementGroup}/#3`,
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Participantes",
-    href: `${urlManagementGroup}/#4`,
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Clases",
-    href: `${urlManagementGroup}/#5`,
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-]
-
 const urlCourses = "/dashboard/cursos";
-export const navCoursesItems: { title: string; href: string; description: string }[] = [
+
+export const navMainCollapse: NavItem[] = [
   {
-    title: "Unirme a un grupo",
-    href: `${urlCourses}/#1`,
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+    title: "Mis Cursos",
+    url: urlCourses,
+    icon: BookOpen,
+    isActive: true,
+    items: [
+      {
+        title: "Unirme a un grupo",
+        url: `${urlCourses}/#`,
+      },
+      {
+        title: "Historial de Cursos",
+        url: `${urlCourses}/#`,
+      },
+      {
+        title: "Crear grupo",
+        url: `${urlCourses}/#`,
+      },
+    ],
   },
   {
-    title: "Historial de Cursos",
-    href: `${urlCourses}/#2`,
-    description:
-      "For sighted users to preview content available behind a link.",
+    title: "Gestión de Grupos",
+    url: urlManagementGroup,
+    icon: Bot,
+    items: [
+      {
+        title: "Anuncios",
+        url: `${urlManagementGroup}/#`,
+      },
+      {
+        title: "Evaluaciones",
+        url: `${urlManagementGroup}/#`,
+      },
+      {
+        title: "Calificaciones",
+        url: `${urlManagementGroup}/#`,
+      },
+      {
+        title: "Participantes",
+        url: `${urlManagementGroup}/#`,
+      },
+      {
+        title: "Clases",
+        url: `${urlManagementGroup}/#`,
+      },
+    ],
+  },
+];
+
+export const navSimpleMain: NavSimpleItem[] = [
+  {
+    title: "Catálogo de Cursos",
+    url: "/dashboard/catalogo",
+    icon: IconDatabase,
   },
   {
-    title: "Crear grupo",
-    href: `${urlCourses}/#3`,
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+    title: "Información de Grupos",
+    url: "/dashboard/informacion-grupos",
+    icon: IconReport,
   },
-]
+];
+
+export const navMainOptions: NavSimpleItem[] = [
+  {
+    title: "Settings",
+    url: "#",
+    icon: IconSettings,
+  },
+  {
+    title: "Get Help",
+    url: "#",
+    icon: IconHelp,
+  },
+  {
+    title: "Search",
+    url: "#",
+    icon: IconSearch,
+  },
+];

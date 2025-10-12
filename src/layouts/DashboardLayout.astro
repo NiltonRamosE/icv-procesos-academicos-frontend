@@ -1,6 +1,6 @@
 ---
 import "@/styles/global.css";
-import {Navbar} from "@/shared/Navbar";
+
 export interface SEOFields {
 	robots: string[];
     title: string;
@@ -62,7 +62,6 @@ const {
 
 	</head>
 	<body class="min-h-screen flex flex-col bg-theme-night">
-        <Navbar client:load />
 		<main class="flex-grow">
 			<slot />
 		</main>
