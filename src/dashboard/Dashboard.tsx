@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar"
 import { ChartAreaInteractive } from "@/dashboard/components/chart-area-interactive"
 import { DataTable } from "@/dashboard/components/data-table"
@@ -11,6 +12,21 @@ import {
 import data from "@/dashboard/data.json"
 
 export default function DashboardICV() {
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = window.localStorage.getItem("token");
+    const u = window.localStorage.getItem("user");
+    console.log(t);
+    setToken(t ?? null);
+    try { setUser(u ? JSON.parse(u) : null); } catch { setUser(null); }
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <SidebarProvider
       style={
@@ -20,7 +36,7 @@ export default function DashboardICV() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" token={token} user={user}/>
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

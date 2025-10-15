@@ -13,19 +13,21 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {navMainCollapse, navSimpleMain, navMainOptions} from "@/shared/site"; 
-const data = {
-  user: {
-    name: "Nilton",
-    email: "niltonencarnacion17@gmail.com",
-    avatar: "/images/9440461.webp",
-  },
-  navMain: navMainCollapse,
-  navMainSecondary: navSimpleMain,
-  navOptions: navMainOptions,
-}
+import {navMainCollapse, navSimpleMain, navMainOptions} from "@/shared/site";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  token?: string | null;
+  user?: { first_name?: string; email?: string; avatar?: string } | null;
+};
+
+export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
+  const shownUser = {
+    name: user?.first_name ?? "Invitado",
+    email: user?.email ?? "—",
+    avatar: user?.avatar ?? "/images/9440461.webp",
+    token: token ?? "token_invalido"
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -46,12 +48,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navMainSecondary}/>
-        <NavSecondary items={data.navOptions} className="mt-auto" />
+        <NavMain items={navMainCollapse} />
+        <NavSecondary items={navSimpleMain}/>
+        <NavSecondary items={navMainOptions} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={shownUser} />
       </SidebarFooter>
     </Sidebar>
   )
