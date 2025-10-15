@@ -19,9 +19,9 @@ import { config } from "config.ts"
 const FormSchema = z.object({
   email: z
     .string()
-    .email({
+    /* .email({
       message: "Por favor, ingresa una dirección de correo válida.",
-    })
+    }) */
     .min(1, {
       message: "El correo electrónico es obligatorio.",
     }),
@@ -34,7 +34,7 @@ const FormSchema = z.object({
     .max(20, {
       message: "La contraseña no debe exceder los 20 caracteres.",
     })
-    .regex(/[A-Z]/, {
+    /* .regex(/[A-Z]/, {
       message: "La contraseña debe contener al menos una letra mayúscula.",
     })
     .regex(/[0-9]/, {
@@ -42,7 +42,7 @@ const FormSchema = z.object({
     })
     .regex(/[\W_]/, {
       message: "La contraseña debe contener al menos un carácter especial (por ejemplo, !@#$%^&*).",
-    }),
+    }), */
 });
 
 export function LoginForm({
@@ -63,14 +63,7 @@ export function LoginForm({
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const response = {
-        ok: true,
-        json: async () => ({
-          message: "Inicio de sesión exitoso",
-          token: "fake-jwt-token",
-        }),
-      };
-      /* const response = await fetch(`${config.apiUrl}${config.endpoints.auth.login}`, {
+      const response = await fetch(`${config.apiUrl}${config.endpoints.auth.login}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,20 +72,19 @@ export function LoginForm({
           email: data.email,
           password: data.password,
         }),
-      }); */
+      });
 
       if (response.ok) {
         const responseData = await response.json();
         console.log("Login response:", responseData);
-        // localStorage.setItem("token", responseData.token);
-
+        localStorage.setItem("token", JSON.stringify(responseData.token));
+        localStorage.setItem("user", JSON.stringify(responseData.user));
         toast.success("¡Inicio de sesión exitoso!", {
           description: "Redirigiendo a tu dashboard.",
         });
         
-        // Redirigir después de un breve delay
         setTimeout(() => {
-          window.location.href = "/dashboard/cursos";
+          window.location.href = "/dashboard";
         }, 2000);
       } else {
         const errorData = await response.json();

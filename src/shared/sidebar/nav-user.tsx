@@ -28,17 +28,49 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { toast } from "react-toastify"
+import { config } from "config.ts"
 
 export function NavUser({
-  user,
+  user
 }: {
   user: {
     name: string
     email: string
     avatar: string
+    token: string
   }
 }) {
   const { isMobile } = useSidebar()
+  const handleLogout = async () => {
+    try {
+      const tokenWithoutQuotes = user.token.replace(/^"|"$/g, '');
+
+      const response = await fetch(`${config.apiUrl}${config.endpoints.auth.logout}`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Authorization": `Bearer ${tokenWithoutQuotes}`,
+        },
+      });
+
+      if (response.ok) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        toast.success("¡Has cerrado sesión exitosamente!");
+
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        toast.error(`Error: ${errorData.message || "Algo salió mal."}`);
+      }
+    } catch (error) {
+      toast.error("No se pudo cerrar sesión, intenta nuevamente.");
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -98,7 +130,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <IconLogout />
               Log out
             </DropdownMenuItem>

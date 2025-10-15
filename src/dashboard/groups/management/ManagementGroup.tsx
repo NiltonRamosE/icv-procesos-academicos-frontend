@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar"
 import { SectionCards } from "@/dashboard/components/section-cards"
 import { SiteHeader } from "@/dashboard/components/site-header"
@@ -7,6 +8,18 @@ import {
 } from "@/components/ui/sidebar"
 
 export default function ManagementGroup() {
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = window.localStorage.getItem("token");
+    const u = window.localStorage.getItem("user");
+    console.log(t);
+    setToken(t ?? null);
+    try { setUser(u ? JSON.parse(u) : null); } catch { setUser(null); }
+    setMounted(true);
+  }, []);
   return (
     <SidebarProvider
       style={
@@ -16,7 +29,7 @@ export default function ManagementGroup() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" token={token} user={user}/>
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">
