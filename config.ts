@@ -10,8 +10,8 @@ export const config = {
     environment:"development",
     endpoints: {
       auth: {
-        login: "/api/v1/auth/login",
-        logout: "/api/v1/auth/logout",
+        login: "/api/auth/login",
+        logout: "/api/auth/logout",
       },
     },
 };
