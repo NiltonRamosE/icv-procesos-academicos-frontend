@@ -1,0 +1,15 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import ManagementGroup from '@/dashboard/groups/management/ManagementGroup';
+const robots = ["index", "follow"];
+const title = "Gestión de Grupos";
+const description = "Gestión de Grupos disponibles para estudiantes y profesionales.";
+const keywords = ["Gestión de Grupos", "Instituto de Capacitación y Desarrollo Virtual", "Capacitación", "Desarrollo Virtual", "Estudiantes", "Profesionales"];
+const url = "https://icv-procesos-academicos-frontend.vercel.app/dashboard/gestion-grupos";
+const imageOG = "/incadev_isologotipo.webp";
+const imagetwt = "/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<ManagementGroup client:load/>
+</DashboardLayout>
