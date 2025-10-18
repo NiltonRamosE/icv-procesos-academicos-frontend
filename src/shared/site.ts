@@ -59,16 +59,20 @@ export const navMainCollapse: NavItem[] = [
     items: [
       {
         title: "Unirme a un grupo",
-        url: `${urlCourses}/#`,
+        url: "/dashboard/catalogo",
       },
       {
         title: "Historial de Cursos",
-        url: `${urlCourses}/#`,
+        url: `${urlCourses}#historial`,
       },
       {
         title: "Crear grupo",
-        url: `${urlCourses}/#`,
+        url: `${urlCourses}#crear-grupo`,
       },
+      {
+        title: "Crear Curso",
+        url:`${urlCourses}#crear-curso`
+      }
     ],
   },
   {
