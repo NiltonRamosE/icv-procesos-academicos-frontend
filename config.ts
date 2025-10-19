@@ -25,6 +25,7 @@ export const config = {
       getClasses: "/api/groups/:id/classes",
       createClass: "/api/groups/:id/classes",
       create: "/api/groups",
+      complete: "/api/groups/:groupId/complete",
     },
     
     courses: {
