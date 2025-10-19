@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar"
-import { SectionCards } from "@/dashboard/components/section-cards"
 import { SiteHeader } from "@/dashboard/components/site-header"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+// Importar el nuevo componente del catálogo
+import CourseCatalog  from "@/dashboard/components/CourseCatalog"
 
 export default function Catalog() {
   const [token, setToken] = useState<string | null>(null);
@@ -22,6 +23,7 @@ export default function Catalog() {
   }, []);
 
   if (!mounted) return null;
+
   return (
     <SidebarProvider
       style={
@@ -36,12 +38,8 @@ export default function Catalog() {
         <SiteHeader title="Catálogo de grupos"/>
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-              <section className="p-10">
-                Esta es la sección de catálogos
-              </section>
-            </div>
+            {/* AQUÍ VA TU COMPONENTE DEL CATÁLOGO */}
+            <CourseCatalog token={token} />
           </div>
         </div>
       </SidebarInset>

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar"
-import { SectionCards } from "@/dashboard/components/section-cards"
 import { SiteHeader } from "@/dashboard/components/site-header"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+
+// Importar el nuevo componente de las pestañas
+import GroupManagementTabs from "@/dashboard/components/GroupManagementTabs";
 
 export default function ManagementGroup() {
   const [token, setToken] = useState<string | null>(null);
@@ -20,6 +22,9 @@ export default function ManagementGroup() {
     try { setUser(u ? JSON.parse(u) : null); } catch { setUser(null); }
     setMounted(true);
   }, []);
+
+  if (!mounted) return null;
+
   return (
     <SidebarProvider
       style={
@@ -34,12 +39,8 @@ export default function ManagementGroup() {
         <SiteHeader title="Gestión de Grupos"/>
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-              <section className="p-10">
-                Esta es la sección de gestión de grupos
-              </section>
-            </div>
+            {/* AQUÍ VA TU COMPONENTE DE GESTIÓN DE GRUPOS */}
+            <GroupManagementTabs user={user} token={token} />
           </div>
         </div>
       </SidebarInset>
