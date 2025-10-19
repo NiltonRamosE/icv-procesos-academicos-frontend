@@ -10,19 +10,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { IconSearch, IconBook, IconClock, IconUsers, IconLoader } from "@tabler/icons-react";
+import { IconSearch, IconBook, IconClock, IconVideo, IconLoader } from "@tabler/icons-react";
 import { config } from "config.ts"
 
 interface Course {
   id: number;
-  name: string;
-  description: string;
-  image: string;
+  course_id: number;
+  title: string;
+  name: string | null;
+  description: string | null;
   level: string;
+  course_image: string | null;
+  video_url: string | null;
   duration: string;
-  students: number;
+  sessions: number | null;
+  selling_price: string;
+  discount_price: string | null;
+  prerequisites: string | null;
+  certificate_name: boolean;
+  certificate_issuer: string | null;
+  bestseller: boolean;
+  featured: boolean;
+  highest_rated: boolean;
   status: boolean;
-  prerequisites: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface CourseCatalogProps {
@@ -41,110 +53,17 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
   const loadCourses = async () => {
     setLoading(true);
     try {
-      // TODO: Reemplazar con llamada real a la API
-      // Ejemplo de cómo hacer la llamada:
-      // const response = await fetch(`${config.apiUrl}/api/courses`, {
-      //   headers: { 
-      //     "Authorization": `Bearer ${token}`,
-      //     "Content-Type": "application/json"
-      //   }
-      // });
-      // const data = await response.json();
-      // setCourses(data);
-
-      // DATOS DE EJEMPLO - Reemplazar con datos reales del backend
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simular carga
-
-      setCourses([
-        {
-          id: 1,
-          name: "Desarrollo Web Full Stack",
-          description: "Aprende a crear aplicaciones web completas desde cero, dominando tanto frontend como backend con las tecnologías más demandadas del mercado.",
-          image: "/images/9440461.webp",
-          level: "Intermedio",
-          duration: "6 meses",
-          students: 250,
-          status: true,
-          prerequisites: "HTML, CSS básico"
-        },
-        {
-          id: 2,
-          name: "Python para Data Science",
-          description: "Domina Python y las principales librerías para análisis de datos, machine learning y visualización de información.",
-          image: "/images/9440461.webp",
-          level: "Principiante",
-          duration: "4 meses",
-          students: 180,
-          status: true,
-          prerequisites: "Conocimientos básicos de programación"
-        },
-        {
-          id: 3,
-          name: "React Native para Aplicaciones Móviles",
-          description: "Desarrolla aplicaciones móviles nativas para iOS y Android utilizando React Native y JavaScript.",
-          image: "/images/9440461.webp",
-          level: "Avanzado",
-          duration: "5 meses",
-          students: 120,
-          status: true,
-          prerequisites: "JavaScript, React"
-        },
-        {
-          id: 4,
-          name: "Diseño UX/UI Profesional",
-          description: "Aprende los principios del diseño centrado en el usuario y crea interfaces atractivas y funcionales.",
-          image: "/images/9440461.webp",
-          level: "Principiante",
-          duration: "3 meses",
-          students: 200,
-          status: true,
-          prerequisites: "Ninguno"
-        },
-        {
-          id: 5,
-          name: "DevOps y Cloud Computing",
-          description: "Domina las prácticas de DevOps y aprende a desplegar aplicaciones en la nube con AWS, Docker y Kubernetes.",
-          image: "/images/9440461.webp",
-          level: "Avanzado",
-          duration: "6 meses",
-          students: 95,
-          status: true,
-          prerequisites: "Linux, Redes, Programación"
-        },
-        {
-          id: 6,
-          name: "Ciberseguridad Ética",
-          description: "Aprende técnicas de hacking ético y protección de sistemas para convertirte en un experto en seguridad informática.",
-          image: "/images/9440461.webp",
-          level: "Intermedio",
-          duration: "5 meses",
-          students: 150,
-          status: true,
-          prerequisites: "Redes, Sistemas operativos"
-        },
-        {
-          id: 7,
-          name: "Inteligencia Artificial y Machine Learning",
-          description: "Explora el mundo de la IA y aprende a crear modelos de machine learning con Python y TensorFlow.",
-          image: "/images/9440461.webp",
-          level: "Avanzado",
-          duration: "7 meses",
-          students: 175,
-          status: true,
-          prerequisites: "Python, Matemáticas, Estadística"
-        },
-        {
-          id: 8,
-          name: "Marketing Digital y Redes Sociales",
-          description: "Domina las estrategias de marketing digital y aprende a crear campañas efectivas en redes sociales.",
-          image: "/images/9440461.webp",
-          level: "Principiante",
-          duration: "3 meses",
-          students: 220,
-          status: true,
-          prerequisites: "Ninguno"
+      const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
+      const response = await fetch(`${config.apiUrl}${config.endpoints.courses.getAll}`, {
+        method: "GET",
+        headers: { 
+          "Authorization": `Bearer ${tokenWithoutQuotes}`,
+          "Content-Type": "application/json"
         }
-      ]);
+      });
+      const data = await response.json();
+      console.log("Cursos cargados:", data);
+      setCourses(data);
     } catch (error) {
       console.error("Error cargando cursos:", error);
     } finally {
@@ -155,24 +74,43 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
   // Filtrar cursos según búsqueda
   const filteredCourses = courses.filter(course =>
     course.status && (
-      course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (course.name && course.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (course.description && course.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
       course.level.toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
 
   // Función para obtener el color del badge según el nivel
   const getLevelColor = (level: string) => {
-    switch (level) {
-      case "Principiante":
+    switch (level.toLowerCase()) {
+      case "basic":
+      case "básico":
         return "bg-green-500/10 text-green-500 border-green-500/20";
-      case "Intermedio":
+      case "intermediate":
+      case "intermedio":
         return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-      case "Avanzado":
+      case "advanced":
+      case "avanzado":
         return "bg-red-500/10 text-red-500 border-red-500/20";
       default:
-        return "";
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
     }
+  };
+
+  // Función para formatear el nivel
+  const formatLevel = (level: string) => {
+    const levels: { [key: string]: string } = {
+      "basic": "Básico",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    };
+    return levels[level.toLowerCase()] || level;
+  };
+
+  // Función para formatear el precio
+  const formatPrice = (price: string) => {
+    return `S/ ${parseFloat(price).toFixed(2)}`;
   };
 
   const handleCourseClick = (courseId: number) => {
@@ -206,7 +144,7 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
           <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Buscar por nombre de curso, nivel o descripción..."
+            placeholder="Buscar por título, nombre, nivel o descripción..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 h-12 text-base"
@@ -233,43 +171,79 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
           {filteredCourses.map((course) => (
             <Card 
               key={course.id} 
-              className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+              className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group flex flex-col"
               onClick={() => handleCourseClick(course.id)}
             >
               {/* Imagen del curso */}
               <div className="relative h-48 w-full overflow-hidden bg-muted">
                 <img
-                  src={course.image}
-                  alt={course.name}
+                  src={course.course_image || "/images/9440461.webp"}
+                  alt={course.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-2 right-2">
                   <Badge className={getLevelColor(course.level)}>
-                    {course.level}
+                    {formatLevel(course.level)}
                   </Badge>
                 </div>
+                {course.bestseller && (
+                  <div className="absolute top-2 left-2">
+                    <Badge className="bg-amber-500/90 text-white border-0">
+                      Bestseller
+                    </Badge>
+                  </div>
+                )}
+                {course.featured && (
+                  <div className="absolute bottom-2 left-2">
+                    <Badge className="bg-purple-500/90 text-white border-0">
+                      Destacado
+                    </Badge>
+                  </div>
+                )}
+                {course.highest_rated && (
+                  <div className="absolute bottom-2 right-2">
+                    <Badge className="bg-blue-500/90 text-white border-0">
+                      Mejor Valorado
+                    </Badge>
+                  </div>
+                )}
               </div>
 
               <CardHeader className="space-y-2">
                 <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">
-                  {course.name}
+                  {course.title}
                 </CardTitle>
+                {course.name && (
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {course.name}
+                  </p>
+                )}
                 <CardDescription className="line-clamp-3 text-sm">
-                  {course.description}
+                  {course.description || "Sin descripción disponible"}
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 flex-1">
                 {/* Información adicional */}
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <IconClock className="h-4 w-4" />
-                    <span>{course.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <IconUsers className="h-4 w-4" />
-                    <span>{course.students}</span>
-                  </div>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                  {course.duration && (
+                    <div className="flex items-center gap-1">
+                      <IconClock className="h-4 w-4" />
+                      <span>{parseFloat(course.duration).toFixed(0)}h</span>
+                    </div>
+                  )}
+                  {course.sessions && (
+                    <div className="flex items-center gap-1">
+                      <IconBook className="h-4 w-4" />
+                      <span>{course.sessions} sesiones</span>
+                    </div>
+                  )}
+                  {course.video_url && (
+                    <div className="flex items-center gap-1">
+                      <IconVideo className="h-4 w-4" />
+                      <span>Video</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Pre-requisitos */}
@@ -281,6 +255,34 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
                     </span>
                   </div>
                 )}
+
+                {/* Certificación */}
+                {course.certificate_issuer && (
+                  <div className="text-xs">
+                    <span className="font-medium">Certificado por:</span>
+                    <span className="text-muted-foreground ml-1">
+                      {course.certificate_issuer}
+                    </span>
+                  </div>
+                )}
+
+                {/* Precio */}
+                <div className="pt-2">
+                  {course.discount_price ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-primary">
+                        {formatPrice(course.discount_price)}
+                      </span>
+                      <span className="text-sm text-muted-foreground line-through">
+                        {formatPrice(course.selling_price)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-lg font-bold">
+                      {formatPrice(course.selling_price)}
+                    </span>
+                  )}
+                </div>
               </CardContent>
 
               <CardFooter>

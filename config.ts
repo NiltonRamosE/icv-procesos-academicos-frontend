@@ -30,6 +30,7 @@ export const config = {
       getAll: "/api/courses",
       getById: "/api/courses/:id",
       getGroups: "/api/courses/:id/groups",
+      create: "/api/courses",
     },
   },
 };
