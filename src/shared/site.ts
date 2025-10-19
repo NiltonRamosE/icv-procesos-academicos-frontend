@@ -110,11 +110,11 @@ export const navSimpleMain: NavSimpleItem[] = [
     url: "/dashboard/catalogo",
     icon: IconDatabase,
   },
-  {
+  /* {
     title: "Información de Grupos",
     url: "/dashboard/informacion-grupos",
     icon: IconReport,
-  },
+  }, */
 ];
 
 export const navMainOptions: NavSimpleItem[] = [

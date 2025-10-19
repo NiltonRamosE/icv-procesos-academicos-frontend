@@ -114,11 +114,10 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
   };
 
   const handleCourseClick = (course: Course) => {
-  if (typeof window !== 'undefined') {
-    const courseData = encodeURIComponent(JSON.stringify(course));
-    window.location.href = `/dashboard/grupos-disponibles?courseId=${course.id}&course=${courseData}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = `/dashboard/grupos-disponibles?courseId=${course.id}`;
+    }
   }
-   }
 
   if (loading) {
     return (

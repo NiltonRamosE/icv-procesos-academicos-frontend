@@ -17,8 +17,22 @@ interface Group {
 }
 
 export default function InformationGroup() {
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
   const [group, setGroup] = useState<Group | null>(null);
+
+  useEffect(() => {
+    const t = window.localStorage.getItem("token");
+    const u = window.localStorage.getItem("user");
+    setToken(t ?? null);
+    try { 
+      setUser(u ? JSON.parse(u) : null); 
+    } catch { 
+      setUser(null); 
+    }
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
   setMounted(true);
@@ -86,7 +100,7 @@ export default function InformationGroup() {
         "--header-height": "calc(var(--spacing) * 12)",
       } as React.CSSProperties}
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" token={token} user={user}/>
       <SidebarInset>
         <SiteHeader title="Información de Grupos"/>
         <div className="flex flex-1 flex-col bg-[#0f0f02]">

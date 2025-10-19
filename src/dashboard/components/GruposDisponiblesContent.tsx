@@ -3,7 +3,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { IconArrowLeft, IconClock, IconCalendar, IconUsers, IconLoader, IconSun, IconMoon, IconSunset } from "@tabler/icons-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { IconArrowLeft, IconClock, IconCalendar, IconUsers, IconLoader, IconSun, IconMoon, IconSunset, IconAlertCircle, IconCheck } from "@tabler/icons-react";
+import { config } from "config";
 
 interface Course {
   id: number;
@@ -16,18 +18,21 @@ interface Course {
 
 interface Group {
   id: number;
-  groupName: string;
-  schedule: string;
-  shift: "morning" | "afternoon" | "night";
-  startDate: string;
-  endDate: string;
+  code: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  schedule?: string;
+  shift?: "morning" | "afternoon" | "night";
   teacher: {
+    id: number;
     name: string;
-    photo: string;
+    photo?: string;
   };
-  availableSpots: number;
-  totalSpots: number;
-  status: "available" | "full" | "upcoming";
+  available_spots: number;
+  total_spots: number;
+  status: "available" | "full" | "upcoming" | "completed";
+  enrolled?: boolean;
 }
 
 interface GruposDisponiblesContentProps {
@@ -39,198 +44,133 @@ export default function GruposDisponiblesContent({ token }: GruposDisponiblesCon
   const [course, setCourse] = useState<Course | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [courseId, setCourseId] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [finishingGroup, setFinishingGroup] = useState<number | null>(null);
 
   useEffect(() => {
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('courseId');
-    const courseParam = params.get('course');
-    
-    setCourseId(id);
-    if (id) {
-      if (courseParam) {
-        try {
-          const courseData = JSON.parse(decodeURIComponent(courseParam));
-          setCourse(courseData);
-          loadGroups(id);
-        } catch (error) {
-          console.error("Error parsing course data:", error);
-        }
-      } else {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('courseId');
+      setCourseId(id);
+      
+      if (id) {
         loadCourseAndGroups(id);
       }
     }
-  }
-}, []);
+  }, []);
 
-// En GruposDisponiblesContent.tsx - Reemplazar loadGroups:
-const loadGroups = async (id: string) => {
-  setLoading(true);
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const groupsData: Group[] = [
-      {
-        id: 101,
-        groupName: "Grupo A - Mañana",
-        schedule: "Lunes a Viernes, 8:00 AM - 12:00 PM",
-        shift: "morning",
-        startDate: "2025-11-01",
-        endDate: "2026-04-30",
-        teacher: {
-          name: "Prof. Carlos Rodríguez",
-          photo: "/images/9440461.webp"
-        },
-        availableSpots: 5,
-        totalSpots: 25,
-        status: "available"
-      },
-      {
-        id: 102,
-        groupName: "Grupo B - Tarde",
-        schedule: "Lunes a Viernes, 2:00 PM - 6:00 PM",
-        shift: "afternoon",
-        startDate: "2025-11-01",
-        endDate: "2026-04-30",
-        teacher: {
-          name: "Prof. María González",
-          photo: "/images/9440461.webp"
-        },
-        availableSpots: 12,
-        totalSpots: 25,
-        status: "available"
-      },
-      {
-        id: 103,
-        groupName: "Grupo C - Noche",
-        schedule: "Lunes a Viernes, 7:00 PM - 11:00 PM",
-        shift: "night",
-        startDate: "2025-11-01",
-        endDate: "2026-04-30",
-        teacher: {
-          name: "Prof. Luis Martínez",
-          photo: "/images/9440461.webp"
-        },
-        availableSpots: 0,
-        totalSpots: 25,
-        status: "full"
-      },
-      {
-        id: 104,
-        groupName: "Grupo D - Mañana",
-        schedule: "Lunes a Viernes, 9:00 AM - 1:00 PM",
-        shift: "morning",
-        startDate: "2025-12-01",
-        endDate: "2026-05-31",
-        teacher: {
-          name: "Prof. Ana Silva",
-          photo: "/images/9440461.webp"
-        },
-        availableSpots: 20,
-        totalSpots: 25,
-        status: "upcoming"
-      }
-    ];
-
-    setGroups(groupsData);
-  } catch (error) {
-    console.error("Error cargando grupos:", error);
-  } finally {
-    setLoading(false);
-  }
-};
   const loadCourseAndGroups = async (id: string) => {
     setLoading(true);
     try {
-      // TODO: Reemplazar con llamada real a la API
-      // const response = await fetch(`${config.apiUrl}/api/courses/${id}/groups`, {
-      //   headers: {
-      //     "Authorization": `Bearer ${token}`,
-      //     "Content-Type": "application/json"
-      //   }
-      // });
-      // const data = await response.json();
+      const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
+      
+      // Cargar grupos del curso
+      const groupsResponse = await fetch(
+        `${config.apiUrl}${config.endpoints.courses.getGroups}`.replace(':id', id),
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!groupsResponse.ok) {
+        throw new Error("Error cargando grupos");
+      }
 
-      const courseData: Course = {
+      const responseData = await groupsResponse.json();
+      console.log("Response data:", responseData);
+      
+      // Adaptarse a la estructura del endpoint: { course_title, course_id, groups: [...] }
+      const groupsArray = Array.isArray(responseData) ? responseData : responseData.groups || [];
+      const courseTitle = responseData.course_title;
+      
+      // Usar datos del endpoint de grupos que ya incluye la información del curso
+      setCourse({
         id: parseInt(id),
-        name: "Desarrollo Web Full Stack",
-        description: "Aprende a crear aplicaciones web completas desde cero, dominando tanto frontend como backend con las tecnologías más demandadas del mercado.",
+        name: courseTitle || "Curso sin nombre",
+        description: "Descripción no disponible",
         image: "/images/9440461.webp",
         level: "Intermedio",
-        duration: "6 meses"
-      };
+        duration: "Duración no especificada"
+      });
 
-      const groupsData: Group[] = [
-        {
-          id: 101,
-          groupName: "Grupo A - Mañana",
-          schedule: "Lunes a Viernes, 8:00 AM - 12:00 PM",
-          shift: "morning",
-          startDate: "2025-11-01",
-          endDate: "2026-04-30",
-          teacher: {
-            name: "Prof. Carlos Rodríguez",
-            photo: "/images/9440461.webp"
-          },
-          availableSpots: 5,
-          totalSpots: 25,
-          status: "available"
+      // Procesar datos de grupos - Adaptado a la nueva estructura
+      const processedGroups: Group[] = groupsArray.map((g: any) => ({
+        id: g.group_id,
+        code: g.group_code,
+        name: g.group_name,
+        start_date: g.start_date,
+        end_date: g.end_date,
+        teacher: {
+          id: g.teacher?.id || 1,
+          name: g.teacher?.full_name || "Instructor",
+          photo: g.teacher?.profile_photo || "/images/9440461.webp"
         },
-        {
-          id: 102,
-          groupName: "Grupo B - Tarde",
-          schedule: "Lunes a Viernes, 2:00 PM - 6:00 PM",
-          shift: "afternoon",
-          startDate: "2025-11-01",
-          endDate: "2026-04-30",
-          teacher: {
-            name: "Prof. María González",
-            photo: "/images/9440461.webp"
-          },
-          availableSpots: 12,
-          totalSpots: 25,
-          status: "available"
-        },
-        {
-          id: 103,
-          groupName: "Grupo C - Noche",
-          schedule: "Lunes a Viernes, 7:00 PM - 11:00 PM",
-          shift: "night",
-          startDate: "2025-11-01",
-          endDate: "2026-04-30",
-          teacher: {
-            name: "Prof. Luis Martínez",
-            photo: "/images/9440461.webp"
-          },
-          availableSpots: 0,
-          totalSpots: 25,
-          status: "full"
-        },
-        {
-          id: 104,
-          groupName: "Grupo D - Mañana",
-          schedule: "Lunes a Viernes, 9:00 AM - 1:00 PM",
-          shift: "morning",
-          startDate: "2025-12-01",
-          endDate: "2026-05-31",
-          teacher: {
-            name: "Prof. Ana Silva",
-            photo: "/images/9440461.webp"
-          },
-          availableSpots: 20,
-          totalSpots: 25,
-          status: "upcoming"
-        }
-      ];
+        available_spots: g.available_spots || (g.students ? Math.max(0, 25 - g.students.length) : 0),
+        total_spots: g.total_spots || 25,
+        status: g.status === 'full' ? 'full' : (g.status === 'open' ? 'available' : 'upcoming'),
+        enrolled: g.enrolled || false
+      }));
 
-      setCourse(courseData);
-      setGroups(groupsData);
+      console.log("Grupos procesados:", processedGroups);
+      setGroups(processedGroups);
     } catch (error) {
-      console.error("Error cargando grupos:", error);
+      console.error("Error cargando datos:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al cargar los grupos. Por favor, intenta nuevamente."
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFinishGroup = async (groupId: number) => {
+    if (!window.confirm("¿Estás seguro de que deseas terminar este grupo?")) {
+      return;
+    }
+
+    setFinishingGroup(groupId);
+    try {
+      const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
+      
+      const response = await fetch(
+        `${config.apiUrl}/api/groups/${groupId}/complete`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al terminar el grupo");
+      }
+
+      setMessage({
+        type: 'success',
+        text: "Grupo terminado exitosamente"
+      });
+
+      // Actualizar el estado del grupo
+      setGroups(groups.map(g => 
+        g.id === groupId ? { ...g, status: 'completed', enrolled: false } : g
+      ));
+
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error terminando grupo:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al terminar el grupo. Por favor, intenta nuevamente."
+      });
+    } finally {
+      setFinishingGroup(null);
     }
   };
 
@@ -246,7 +186,7 @@ const loadGroups = async (id: string) => {
     }
   };
 
-  const getShiftIcon = (shift: string) => {
+  const getShiftIcon = (shift?: string) => {
     switch (shift) {
       case "morning":
         return <IconSun className="h-5 w-5" />;
@@ -259,7 +199,7 @@ const loadGroups = async (id: string) => {
     }
   };
 
-  const getShiftColor = (shift: string) => {
+  const getShiftColor = (shift?: string) => {
     switch (shift) {
       case "morning":
         return "bg-amber-500/10 text-amber-500 border-amber-500/20";
@@ -280,6 +220,8 @@ const loadGroups = async (id: string) => {
         return <Badge variant="secondary" className="bg-red-500/10 text-red-500 border-red-500/20">Completo</Badge>;
       case "upcoming":
         return <Badge variant="outline">Próximamente</Badge>;
+      case "completed":
+        return <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20">Terminado</Badge>;
       default:
         return null;
     }
@@ -306,6 +248,23 @@ const loadGroups = async (id: string) => {
 
   return (
     <div className="w-full space-y-6 p-4 md:p-6">
+      {message && (
+        <Alert 
+          variant={message.type === 'error' ? 'destructive' : 'default'}
+          className="mb-6"
+        >
+          {message.type === 'success' ? (
+            <IconCheck className="h-4 w-4" />
+          ) : (
+            <IconAlertCircle className="h-4 w-4" />
+          )}
+          <AlertTitle>
+            {message.type === 'success' ? '¡Éxito!' : 'Error'}
+          </AlertTitle>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
+      )}
+
       <Button 
         variant="ghost" 
         onClick={handleBackToCatalog}
@@ -353,46 +312,42 @@ const loadGroups = async (id: string) => {
           {groups.map((group) => (
             <Card 
               key={group.id}
-              className={`overflow-hidden hover:shadow-lg transition-all cursor-pointer group ${
-                group.status === 'full' ? 'opacity-60' : ''
+              className={`overflow-hidden hover:shadow-lg transition-all group ${
+                group.status === 'full' || group.status === 'completed' ? 'opacity-60' : 'cursor-pointer'
               }`}
-              onClick={() => group.status !== 'full' && handleGroupClick(group.id)}
             >
               <CardHeader className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                    {group.groupName}
+                    {group.name}
                   </CardTitle>
                   {getStatusBadge(group.status)}
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <Badge className={getShiftColor(group.shift)}>
-                    {getShiftIcon(group.shift)}
-                    <span className="ml-2 capitalize">
-                      {group.shift === "morning" ? "Mañana" : group.shift === "afternoon" ? "Tarde" : "Noche"}
-                    </span>
-                  </Badge>
-                </div>
+                {group.shift && (
+                  <div className="flex items-center gap-2">
+                    <Badge className={getShiftColor(group.shift)}>
+                      {getShiftIcon(group.shift)}
+                      <span className="ml-2 capitalize">
+                        {group.shift === "morning" ? "Mañana" : group.shift === "afternoon" ? "Tarde" : "Noche"}
+                      </span>
+                    </Badge>
+                  </div>
+                )}
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="flex items-start gap-2 text-sm">
-                  <IconClock className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-                  <span className="text-muted-foreground">{group.schedule}</span>
-                </div>
-
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <IconCalendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">
-                      Inicio: {new Date(group.startDate).toLocaleDateString('es-PE')}
+                      Inicio: {new Date(group.start_date).toLocaleDateString('es-PE')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <IconCalendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">
-                      Fin: {new Date(group.endDate).toLocaleDateString('es-PE')}
+                      Fin: {new Date(group.end_date).toLocaleDateString('es-PE')}
                     </span>
                   </div>
                 </div>
@@ -417,7 +372,7 @@ const loadGroups = async (id: string) => {
                       Cupos disponibles
                     </span>
                     <span className="font-semibold">
-                      {group.availableSpots}/{group.totalSpots}
+                      {group.available_spots}/{group.total_spots}
                     </span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
@@ -426,20 +381,32 @@ const loadGroups = async (id: string) => {
                         group.status === 'full' ? 'bg-red-500' : 'bg-primary'
                       }`}
                       style={{ 
-                        width: `${((group.totalSpots - group.availableSpots) / group.totalSpots) * 100}%` 
+                        width: `${((group.total_spots - group.available_spots) / group.total_spots) * 100}%` 
                       }}
                     />
                   </div>
                 </div>
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="gap-2 flex-wrap">
+                {group.status !== 'completed' && (
+                  <Button 
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => handleFinishGroup(group.id)}
+                    disabled={finishingGroup === group.id}
+                    size="sm"
+                  >
+                    {finishingGroup === group.id ? 'Terminando...' : 'Terminar Grupo'}
+                  </Button>
+                )}
                 <Button 
-                  className="w-full"
-                  disabled={group.status === 'full'}
-                  variant={group.status === 'full' ? 'secondary' : 'default'}
+                  className={group.status !== 'completed' ? "flex-1" : "w-full"}
+                  disabled={group.status === 'full' || group.status === 'completed'}
+                  onClick={() => group.status !== 'full' && group.status !== 'completed' && handleGroupClick(group.id)}
+                  size="sm"
                 >
-                  {group.status === 'full' ? 'Grupo Completo' : 'Ver Detalles del Grupo'}
+                  {group.status === 'full' ? 'Grupo Completo' : group.status === 'completed' ? 'Terminado' : 'Ver Detalles del Grupo'}
                 </Button>
               </CardFooter>
             </Card>
@@ -461,39 +428,3 @@ const loadGroups = async (id: string) => {
     </div>
   );
 }
-
-// ============================================
-// ARCHIVO 3: MODIFICACIÓN en /src/dashboard/components/CourseCatalog.tsx
-// Cambiar la línea 151 (función handleCourseClick)
-// ============================================
-/*
-  const handleCourseClick = (courseId: number) => {
-    // CAMBIAR ESTA LÍNEA:
-    if (typeof window !== 'undefined') {
-      window.location.href = `/dashboard/grupos-disponibles?courseId=${courseId}`;
-    }
-  };
-*/
-
-// ============================================
-// ARCHIVO 4: MODIFICACIÓN en /src/dashboard/groups/information/InformationGroup.tsx
-// Cambiar líneas 42-50 (dentro de useEffect, función fetchGroupData)
-// ============================================
-/*
-  useEffect(() => {
-    setMounted(true);
-    
-    const fetchGroupData = async () => {
-      // CAMBIAR ESTAS LÍNEAS:
-      const params = new URLSearchParams(window.location.search);
-      const groupId = params.get('groupId') || '1';
-      
-      // const response = await fetch(`/api/groups/${groupId}`);
-      // const data = await response.json();
-      
-      // ... resto del código se mantiene igual
-    };
-    
-    fetchGroupData();
-  }, []);
-*/
