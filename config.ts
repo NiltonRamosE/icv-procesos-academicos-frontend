@@ -13,7 +13,7 @@ export const config = {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
     },
-    
+      
     groups: {
       getById: "/api/groups/:id",
       getAnnouncements: "/api/groups/:id/announcements",
@@ -25,6 +25,7 @@ export const config = {
       getClasses: "/api/groups/:id/classes",
       createClass: "/api/groups/:id/classes",
       create: "/api/groups",
+      complete: "/api/groups/:groupId/complete",
     },
     
     courses: {
