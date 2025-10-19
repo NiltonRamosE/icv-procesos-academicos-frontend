@@ -34,5 +34,13 @@ export const config = {
       getGroups: "/api/courses/:id/groups",
       create: "/api/courses",
     },
+
+    educationalMaterials: {
+      getByGroup: "/api/groups/:groupId/materials",
+      create: "/api/groups/:groupId/materials",
+      update: "/api/groups/:groupId/materials/:materialId",
+      delete: "/api/groups/:groupId/materials/:materialId",
+      toggleVisibility: "/api/groups/:groupId/materials/:materialId/visibility",
+    },
   },
 };
