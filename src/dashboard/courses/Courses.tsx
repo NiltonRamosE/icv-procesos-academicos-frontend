@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar"
 import { SiteHeader } from "@/dashboard/components/site-header"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { Download } from "lucide-react";
 
 type SectionType = 'historial' | 'crear-grupo' | 'crear-curso' | 'default';
 
@@ -29,14 +30,13 @@ export default function Courses() {
   const [completedGroups, setCompletedGroups] = useState<any[]>([]);
 
   useEffect(() => {
-    const t = window.localStorage.getItem("token");
-    const u = window.localStorage.getItem("user");
+    const t = localStorage.getItem("token");
+    const u = localStorage.getItem("user");
     setToken(t ?? null);
     try { setUser(u ? JSON.parse(u) : null); } catch { setUser(null); }
     setMounted(true);
   }, []);
 
-  // Detectar cambios en la URL hash para cambiar de sección
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1);
@@ -51,17 +51,14 @@ export default function Courses() {
       }
     };
 
-    handleHashChange(); // Ejecutar al montar
+    handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Simular carga de grupos completados
   useEffect(() => {
     if (activeSection === 'historial') {
-      // Aquí harías el fetch a tu API
-      // fetch(`/api/groups?user_id=${user?.id}&status=completed`)
       setCompletedGroups([
         {
           id: 1,
@@ -99,9 +96,12 @@ export default function Courses() {
 
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica para crear el grupo
     console.log("Creando grupo...");
-    // Después de crear, podrías redirigir o mostrar un mensaje
+  };
+
+  const handleDownloadCertificate = (groupId: number) => {
+    console.log("Descargando certificado del grupo:", groupId);
+    // window.open(`/api/certificates/download/${groupId}`, '_blank');
   };
 
   if (!mounted) return null;
@@ -152,16 +152,13 @@ export default function Courses() {
                       {completedGroups.map((group) => (
                         <Card 
                           key={group.id} 
-                          className="overflow-hidden cursor-pointer transition-all hover:shadow-lg"
-                          onClick={() => {
-                            window.location.href = `/groups/${group.id}`;
-                          }}
+                          className="overflow-hidden transition-all hover:shadow-lg flex flex-col"
                         >
-                          <div className="aspect-video overflow-hidden">
+                          <div className="aspect-video overflow-hidden cursor-pointer" onClick={() => window.location.href = `/groups/${group.id}`}>
                             <img
                               src={group.course.image}
                               alt={group.course.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover hover:scale-105 transition-transform"
                             />
                           </div>
                           <CardHeader className="pb-3">
@@ -170,7 +167,7 @@ export default function Courses() {
                               {group.course.name}
                             </p>
                           </CardHeader>
-                          <CardContent className="space-y-4">
+                          <CardContent className="space-y-4 flex-1">
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
                                 <AvatarImage src={group.teacher.photo} />
@@ -188,6 +185,24 @@ export default function Courses() {
                               <Progress value={100} />
                             </div>
                           </CardContent>
+                          {group.progress === 100 && (
+                            <CardFooter className="gap-2">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1 gap-2"
+                                onClick={() => handleDownloadCertificate(group.id)}
+                              >
+                                <Download className="h-4 w-4" />
+                                Certificado
+                              </Button>
+                              <Button 
+                                className="flex-1"
+                                onClick={() => window.location.href = `/groups/${group.id}`}
+                              >
+                                Ver Detalles
+                              </Button>
+                            </CardFooter>
+                          )}
                         </Card>
                       ))}
                     </div>

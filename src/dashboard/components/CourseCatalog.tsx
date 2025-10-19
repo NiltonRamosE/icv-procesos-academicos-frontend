@@ -175,12 +175,12 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
     }
   };
 
-  const handleCourseClick = (courseId: number) => {
-    // Navegar a información de grupos con el ID del curso
-    if (typeof window !== 'undefined') {
-      window.location.href = `/dashboard/informacion-grupos?courseId=${courseId}`;
-    }
-  };
+  const handleCourseClick = (course: Course) => {
+  if (typeof window !== 'undefined') {
+    const courseData = encodeURIComponent(JSON.stringify(course));
+    window.location.href = `/dashboard/grupos-disponibles?courseId=${course.id}&course=${courseData}`;
+  }
+   }
 
   if (loading) {
     return (
@@ -234,7 +234,7 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
             <Card 
               key={course.id} 
               className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
-              onClick={() => handleCourseClick(course.id)}
+              onClick={() => handleCourseClick(course)}
             >
               {/* Imagen del curso */}
               <div className="relative h-48 w-full overflow-hidden bg-muted">

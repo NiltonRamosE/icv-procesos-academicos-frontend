@@ -21,40 +21,39 @@ export default function InformationGroup() {
   const [group, setGroup] = useState<Group | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+  setMounted(true);
+  
+  const fetchGroupData = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const groupId = params.get('groupId') || '1';
     
-    // Simulación: en producción esto vendría de la API con el ID del grupo
-    const fetchGroupData = async () => {
-      // const groupId = window.location.pathname.split('/').pop();
-      // const response = await fetch(`/api/groups/${groupId}`);
-      // const data = await response.json();
-      
-      const data = {
-        id: 1,
-        name: "Grupo de Capacitación en Desarrollo Web",
-        description: "Este grupo está dedicado a enseñar habilidades en desarrollo web, incluyendo HTML, CSS, JavaScript, y frameworks modernos.",
-        status: "Aprobado",
-        start_date: "2025-10-20",
-        end_date: "2025-12-20",
-        participants: [
-          { id: 3, name: "Carlos López", role: "Instructor", expertise_area: "Desarrollo Frontend" },
-          { id: 1, name: "Juan Pérez", role: "Estudiante" },
-          { id: 2, name: "Ana Gómez", role: "Estudiante" },
-          { id: 4, name: "María Rodríguez", role: "Estudiante" },
-          { id: 5, name: "Pedro Martínez", role: "Estudiante" },
-        ],
-        classes: [
-          { id: 1, class_name: "Introducción a HTML", class_date: "2025-10-21", start_time: "10:00", end_time: "12:00" },
-          { id: 2, class_name: "CSS y Diseño Web", class_date: "2025-10-22", start_time: "14:00", end_time: "16:00" },
-          { id: 3, class_name: "JavaScript Básico", class_date: "2025-10-23", start_time: "10:00", end_time: "12:00" },
-          { id: 4, class_name: "React Fundamentals", class_date: "2025-10-24", start_time: "14:00", end_time: "16:00" },
-        ]
-      };
-      setGroup(data);
+    // AQUÍ: Usa el groupId en el objeto data
+    const data = {
+      id: parseInt(groupId),  // ← CAMBIO AQUÍ: usa el groupId de la URL
+      name: "Grupo de Capacitación en Desarrollo Web",
+      description: "Este grupo está dedicado a enseñar habilidades en desarrollo web, incluyendo HTML, CSS, JavaScript, y frameworks modernos.",
+      status: "Aprobado",
+      start_date: "2025-10-20",
+      end_date: "2025-12-20",
+      participants: [
+        { id: 3, name: "Carlos López", role: "Instructor", expertise_area: "Desarrollo Frontend" },
+        { id: 1, name: "Juan Pérez", role: "Estudiante" },
+        { id: 2, name: "Ana Gómez", role: "Estudiante" },
+        { id: 4, name: "María Rodríguez", role: "Estudiante" },
+        { id: 5, name: "Pedro Martínez", role: "Estudiante" },
+      ],
+      classes: [
+        { id: 1, class_name: "Introducción a HTML", class_date: "2025-10-21", start_time: "10:00", end_time: "12:00" },
+        { id: 2, class_name: "CSS y Diseño Web", class_date: "2025-10-22", start_time: "14:00", end_time: "16:00" },
+        { id: 3, class_name: "JavaScript Básico", class_date: "2025-10-23", start_time: "10:00", end_time: "12:00" },
+        { id: 4, class_name: "React Fundamentals", class_date: "2025-10-24", start_time: "14:00", end_time: "16:00" },
+      ]
     };
-
-    fetchGroupData();
-  }, []);
+    setGroup(data);
+  };
+  
+  fetchGroupData();
+}, []);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
