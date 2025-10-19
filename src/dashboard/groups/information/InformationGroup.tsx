@@ -89,11 +89,10 @@ export default function InformationGroup() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Información de Grupos"/>
         <div className="flex flex-1 flex-col bg-[#0f0f02]">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
               
               <section className="px-4 pb-8 md:px-8 lg:px-10">
                 {mounted && group ? (
