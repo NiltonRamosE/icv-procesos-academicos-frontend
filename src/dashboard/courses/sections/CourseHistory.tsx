@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 export default function CourseHistory() {
   const [completedGroups, setCompletedGroups] = useState<any[]>([]);
@@ -43,6 +45,11 @@ export default function CourseHistory() {
     ]);
   }, []);
 
+  const handleDownloadCertificate = (groupId: number) => {
+    console.log("Descargando certificado del grupo:", groupId);
+    // window.open(`/api/certificates/download/${groupId}`, '_blank');
+  };
+
   return (
     <section className="px-4 md:px-6 lg:px-10">
       {completedGroups.length === 0 ? (
@@ -54,16 +61,14 @@ export default function CourseHistory() {
           {completedGroups.map((group) => (
             <Card 
               key={group.id} 
-              className="overflow-hidden cursor-pointer transition-all hover:shadow-lg"
-              onClick={() => {
-                window.location.href = `/groups/${group.id}`;
-              }}
+              className="overflow-hidden transition-all hover:shadow-lg flex flex-col"
             >
-              <div className="aspect-video overflow-hidden">
+              <div className="aspect-video overflow-hidden cursor-pointer">
                 <img
                   src={group.course.image}
                   alt={group.course.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform"
+                  onClick={() => window.location.href = `/groups/${group.id}`}
                 />
               </div>
               <CardHeader className="pb-3">
@@ -72,7 +77,7 @@ export default function CourseHistory() {
                   {group.course.name}
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 flex-1">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={group.teacher.photo} />
@@ -90,6 +95,24 @@ export default function CourseHistory() {
                   <Progress value={100} />
                 </div>
               </CardContent>
+              {group.progress === 100 && (
+                <CardFooter className="gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 gap-2"
+                    onClick={() => handleDownloadCertificate(group.id)}
+                  >
+                    <Download className="h-4 w-4" />
+                    Certificado
+                  </Button>
+                  <Button 
+                    className="flex-1"
+                    onClick={() => window.location.href = `/groups/${group.id}`}
+                  >
+                    Ver Detalles
+                  </Button>
+                </CardFooter>
+              )}
             </Card>
           ))}
         </div>
