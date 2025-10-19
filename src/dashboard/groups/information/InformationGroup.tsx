@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar";
 import { SectionCards } from "@/dashboard/components/section-cards";
 import { SiteHeader } from "@/dashboard/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Calendar, Clock, Users, BookOpen, CheckCircle2, User, GraduationCap, Award, ArrowLeft, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { Calendar, Clock, Users, BookOpen, CheckCircle2, User, GraduationCap, Award, ArrowLeft, MoreVertical, Edit } from "lucide-react";
 
 interface Group {
   id: number;
@@ -17,16 +17,29 @@ interface Group {
 }
 
 export default function InformationGroup() {
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
   const [group, setGroup] = useState<Group | null>(null);
 
   useEffect(() => {
+    const t = window.localStorage.getItem("token");
+    const u = window.localStorage.getItem("user");
+    console.log(t);
+    setToken(t ?? null);
+    try { 
+      setUser(u ? JSON.parse(u) : null); 
+    } catch { 
+      setUser(null); 
+    }
     setMounted(true);
-    
+
     // Simulación: en producción esto vendría de la API con el ID del grupo
     const fetchGroupData = async () => {
       // const groupId = window.location.pathname.split('/').pop();
-      // const response = await fetch(`/api/groups/${groupId}`);
+      // const response = await fetch(`/api/groups/${groupId}`, {
+      //   headers: { Authorization: `Bearer ${t}` }
+      // });
       // const data = await response.json();
       
       const data = {
@@ -87,7 +100,7 @@ export default function InformationGroup() {
         "--header-height": "calc(var(--spacing) * 12)",
       } as React.CSSProperties}
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" token={token} user={user} />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col bg-[#0f0f02]">
@@ -121,11 +134,9 @@ export default function InformationGroup() {
 
                     {/* Header con título y estado */}
                     <div className="relative bg-gradient-to-br from-[#201a2f] via-[#111115] to-[#000000] rounded-2xl p-8 md:p-10 border border-[#848282]/20 shadow-2xl overflow-hidden">
-                      {/* Efecto de brillo sutil */}
                       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-blue-500/5"></div>
                       
                       <div className="relative">
-                        {/* Badge de grupo */}
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/30 rounded-full mb-4">
                           <Award className="w-4 h-4 text-purple-400" />
                           <span className="text-xs font-medium text-purple-400">Grupo #{group.id}</span>
