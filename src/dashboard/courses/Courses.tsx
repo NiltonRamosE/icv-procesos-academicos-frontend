@@ -79,7 +79,7 @@ export default function Courses() {
               
               {activeSection === 'default' && <MyCourses />}
               {activeSection === 'historial' && <CourseHistory />}
-              {activeSection === 'crear-grupo' && <CreateGroup />}
+              {activeSection === 'crear-grupo' && <CreateGroup token={token} user={user}/>}
               {activeSection === 'crear-curso' && <CreateCourse token={token} />}
 
             </div>
