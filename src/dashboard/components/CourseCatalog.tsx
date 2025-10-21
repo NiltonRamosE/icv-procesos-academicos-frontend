@@ -115,7 +115,7 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
 
   const handleCourseClick = (course: Course) => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/dashboard/grupos-disponibles?courseId=${course.id}`;
+      window.location.href = `/academico/dashboard/grupos-disponibles?courseId=${course.id}`;
     }
   }
 
@@ -176,7 +176,7 @@ export default function CourseCatalog({ token }: CourseCatalogProps) {
               {/* Imagen del curso */}
               <div className="relative h-48 w-full overflow-hidden bg-muted">
                 <img
-                  src={course.course_image || "/images/9440461.webp"}
+                  src={course.course_image || "/academico/images/9440461.webp"}
                   alt={course.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />

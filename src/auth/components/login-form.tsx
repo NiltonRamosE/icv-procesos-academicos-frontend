@@ -84,7 +84,7 @@ export function LoginForm({
         });
         
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/academico/dashboard";
         }, 2000);
       } else {
         const errorData = await response.json();

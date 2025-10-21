@@ -254,7 +254,7 @@ export default function InformationGroup() {
   };
 
   const handleBackToGroups = () => {
-    window.location.href = "/dashboard/grupos-disponibles";
+    window.location.href = "/academico/dashboard/grupos-disponibles";
   };
 
   if (!mounted || loading) {
@@ -653,7 +653,7 @@ export default function InformationGroup() {
                                 key={course.previous_course_id}
                                 className="group bg-[#111115] hover:bg-[#201a2f] p-6 rounded-xl border border-[#848282]/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-amber-500/40 cursor-pointer"
                                 onClick={() =>
-                                  (window.location.href = `/dashboard/catalogo`)
+                                  (window.location.href = `/academico/dashboard/catalogo`)
                                 }
                               >
                                 <div className="flex items-start justify-between gap-3 mb-4">

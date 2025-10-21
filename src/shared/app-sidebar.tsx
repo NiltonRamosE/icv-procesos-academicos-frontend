@@ -27,7 +27,7 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
   const shownUser = {
     name: user?.first_name ?? "Invitado",
     email: user?.email ?? "—",
-    avatar: user?.avatar ?? "/images/9440461.webp",
+    avatar: user?.avatar ?? "/academico/images/9440461.webp",
     token: token ?? "token_invalido"
   };
 
@@ -50,9 +50,9 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="/dashboard" title="Dashboard" className="flex items-center space-x-2">
+              <a href="/academico/dashboard" title="Dashboard" className="flex items-center space-x-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                  <span><img src="/incadev_logotipo.svg" alt="Logotipo Incadev" title="Logotipo Incadev"/></span>
+                  <span><img src="/academico/incadev_logotipo.svg" alt="Logotipo Incadev" title="Logotipo Incadev"/></span>
                 </div>
                 <span className="text-xl font-bold">Incadev</span>
               </a>
