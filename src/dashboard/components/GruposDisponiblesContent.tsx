@@ -92,7 +92,7 @@ export default function GruposDisponiblesContent({ token }: GruposDisponiblesCon
         id: parseInt(id),
         name: courseTitle || "Curso sin nombre",
         description: "Descripción no disponible",
-        image: "/images/9440461.webp",
+        image: "/academico/images/9440461.webp",
         level: "Intermedio",
         duration: "Duración no especificada"
       });
@@ -107,7 +107,7 @@ export default function GruposDisponiblesContent({ token }: GruposDisponiblesCon
         teacher: {
           id: g.teacher?.id || 1,
           name: g.teacher?.full_name || "Instructor",
-          photo: g.teacher?.profile_photo || "/images/9440461.webp"
+          photo: g.teacher?.profile_photo || "/academico/images/9440461.webp"
         },
         available_spots: g.available_spots || (g.students ? Math.max(0, 25 - g.students.length) : 0),
         total_spots: g.total_spots || 25,
@@ -176,13 +176,13 @@ export default function GruposDisponiblesContent({ token }: GruposDisponiblesCon
 
   const handleBackToCatalog = () => {
     if (typeof window !== 'undefined') {
-      window.location.href = '/dashboard/catalogo';
+      window.location.href = '/academico/dashboard/catalogo';
     }
   };
 
   const handleGroupClick = (groupId: number) => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/dashboard/informacion-grupos?groupId=${groupId}`;
+      window.location.href = `/academico/dashboard/informacion-grupos?groupId=${groupId}`;
     }
   };
 
