@@ -7,7 +7,7 @@ export function Login() {
     <section className="grid grid-cols-1 md:grid-cols-2">
       <div className="hidden md:block">
         <img
-          src="academico/images/bg-login-pc.webp"
+          src="/academico/images/bg-login-pc.webp"
           alt="Imagen de bienvenida"
           className="w-md h-md lg:w-lg lg:h-lg xl:w-5xl xl:h-5xl"
           loading="lazy"
@@ -18,7 +18,7 @@ export function Login() {
         <div className="m-0 h-full w-full absolute">
           <div className="overflow-hidden h-full absolute w-full">
             <img
-              src="academico/images/bg-message.webp"
+              src="/academico/images/bg-message.webp"
               alt=" Imagen de bienvenida"
               className="w-full h-full scale-160 object-cover"
               loading="lazy"
@@ -36,7 +36,7 @@ export function Login() {
 
             <div className="w-1/2">
               <img
-                src="academico/images/bg-login-guy.webp"
+                src="/academico/images/bg-login-guy.webp"
                 alt="Imagen de bienvenida"
                 className="object-cover scale-x-[-1]"
                 loading="lazy"
