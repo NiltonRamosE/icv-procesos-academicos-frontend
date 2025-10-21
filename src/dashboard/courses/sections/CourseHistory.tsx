@@ -17,11 +17,11 @@ export default function CourseHistory() {
         name: "Grupo A - Mañana",
         course: {
           name: "Desarrollo Web Fullstack",
-          image: "/images/default-group-01.webp"
+          image: "/academico/images/default-group-01.webp"
         },
         teacher: {
           name: "Juan Pérez",
-          photo: "/images/9439727.webp"
+          photo: "/academico/images/9439727.webp"
         },
         start_date: "2023-07-15",
         end_date: "2023-12-15",
@@ -32,11 +32,11 @@ export default function CourseHistory() {
         name: "Grupo B - Tarde",
         course: {
           name: "Python Avanzado",
-          image: "/images/default-group-02.webp"
+          image: "/academico/images/default-group-02.webp"
         },
         teacher: {
           name: "María González",
-          photo: "/images/9439729.webp"
+          photo: "/academico/images/9439729.webp"
         },
         start_date: "2023-06-01",
         end_date: "2023-11-30",
@@ -68,7 +68,7 @@ export default function CourseHistory() {
                   src={group.course.image}
                   alt={group.course.name}
                   className="w-full h-full object-cover hover:scale-105 transition-transform"
-                  onClick={() => window.location.href = `/groups/${group.id}`}
+                  onClick={() => window.location.href = `/academico/groups/${group.id}`}
                 />
               </div>
               <CardHeader className="pb-3">
@@ -107,7 +107,7 @@ export default function CourseHistory() {
                   </Button>
                   <Button 
                     className="flex-1"
-                    onClick={() => window.location.href = `/groups/${group.id}`}
+                    onClick={() => window.location.href = `/academico/groups/${group.id}`}
                   >
                     Ver Detalles
                   </Button>

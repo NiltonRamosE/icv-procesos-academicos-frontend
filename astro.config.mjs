@@ -4,9 +4,11 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
-    site: "https://icv-procesos-academicos-frontend.vercel.app",
+    base: '/academico',
+    site: "https://instituto.cetivirgendelapuerta.com/academico",
     integrations: [react()],
     vite: {
         plugins: [tailwindcss()],
     },
+    
 });

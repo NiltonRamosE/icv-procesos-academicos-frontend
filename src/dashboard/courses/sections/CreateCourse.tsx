@@ -195,7 +195,7 @@ export default function CreateCourse({ token }: CreateCourseProps) {
       });
 
       setTimeout(() => {
-        window.location.href = "/dashboard/catalogo";
+        window.location.href = "/academico/dashboard/catalogo";
       }, 1500);
     } catch (error) {
       console.error("Error al crear curso:", error);

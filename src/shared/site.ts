@@ -47,8 +47,8 @@ export const siteConfig = {
   ],
 };
 
-const urlManagementGroup = "/dashboard/gestion-grupos";
-const urlCourses = "/dashboard/cursos";
+const urlManagementGroup = "/academico/dashboard/gestion-grupos";
+const urlCourses = "/academico/dashboard/cursos";
 
 export const navMainCollapse: NavItem[] = [
   {
@@ -59,7 +59,7 @@ export const navMainCollapse: NavItem[] = [
     items: [
       {
         title: "Unirme a un grupo",
-        url: "/dashboard/catalogo",
+        url: "/academico/dashboard/catalogo",
       },
       {
         title: "Historial de Cursos",
@@ -107,7 +107,7 @@ export const navMainCollapse: NavItem[] = [
 export const navSimpleMain: NavSimpleItem[] = [
   {
     title: "Catálogo de Cursos",
-    url: "/dashboard/catalogo",
+    url: "/academico/dashboard/catalogo",
     icon: IconDatabase,
   },
   /* {

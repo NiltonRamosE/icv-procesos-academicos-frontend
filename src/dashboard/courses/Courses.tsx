@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/shared/app-sidebar";
 import { SiteHeader } from "@/dashboard/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
-// Importar los componentes de cada sección
 import MyCourses from "@/dashboard/courses/sections/MyCourses";
 import CourseHistory from "@/dashboard/courses/sections/CourseHistory";
 import CreateGroup from "@/dashboard/courses/sections/CreateGroup";
@@ -16,6 +14,7 @@ export default function Courses() {
   const [user, setUser] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState<SectionType>('default');
+  const [completedGroups, setCompletedGroups] = useState<any[]>([]);
 
   useEffect(() => {
     const t = window.localStorage.getItem("token");
@@ -29,10 +28,16 @@ export default function Courses() {
     setMounted(true);
   }, []);
 
-  // Detectar cambios en la URL hash para cambiar de sección
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1);
+      
+      // AGREGAR ESTO - Bloquear acceso a crear-grupo y crear-curso si es student
+      if (user?.role === 'student' && (hash === 'crear-grupo' || hash === 'crear-curso')) {
+        window.location.hash = '';
+        return;
+      }
+      
       if (hash === 'historial') {
         setActiveSection('historial');
       } else if (hash === 'crear-grupo') {
@@ -43,12 +48,12 @@ export default function Courses() {
         setActiveSection('default');
       }
     };
-
+    
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [user?.role]);
 
   if (!mounted) return null;
 
@@ -69,8 +74,8 @@ export default function Courses() {
       <SidebarInset>
         <SiteHeader title={
           activeSection === 'historial' ? 'Historial de Cursos' :
-          activeSection === 'crear-grupo' ? 'Crear Grupo' :
-          activeSection === 'crear-curso' ? 'Crear Curso' :
+          activeSection === 'crear-grupo' && user?.role !== 'student' ? 'Crear Grupo' :
+          activeSection === 'crear-curso' && user?.role !== 'student' ? 'Crear Curso' :
           'Mis Cursos'
         }/>
         <div className="flex flex-1 flex-col">
@@ -79,9 +84,8 @@ export default function Courses() {
               
               {activeSection === 'default' && <MyCourses />}
               {activeSection === 'historial' && <CourseHistory />}
-              {activeSection === 'crear-grupo' && <CreateGroup token={token} user={user}/>}
-              {activeSection === 'crear-curso' && <CreateCourse token={token} />}
-
+              {activeSection === 'crear-grupo' && user?.role !== 'student' && <CreateGroup token={token} user={user}/>}
+              {activeSection === 'crear-curso' && user?.role !== 'student' && <CreateCourse token={token} />}
             </div>
           </div>
         </div>
