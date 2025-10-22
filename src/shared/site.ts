@@ -77,34 +77,6 @@ export const navMainCollapse: NavItem[] = [
     ],
   },
   {
-    title: "Gestión de Grupos",
-    url: urlManagementGroup,
-    icon: Bot,
-    items: [
-      {
-        title: "Anuncios",
-        url: `${urlManagementGroup}/#`,
-      },
-      {
-        title: "Evaluaciones",
-        url: `${urlManagementGroup}/#`,
-      },
-      {
-        title: "Calificaciones",
-        url: `${urlManagementGroup}/#`,
-      },
-      {
-        title: "Participantes",
-        url: `${urlManagementGroup}/#`,
-      },
-      {
-        title: "Clases",
-        url: `${urlManagementGroup}/#`,
-      },
-    ],
-  },
-
-  {
     title: "Seguimiento Egresados",
     url: "/dashboard/graduates",
     icon: GraduationCap,
@@ -127,15 +99,15 @@ export const navMainCollapse: NavItem[] = [
 
 export const navSimpleMain: NavSimpleItem[] = [
   {
+    title: "Gestión de Grupos",
+    url: `${urlManagementGroup}`,
+    icon: IconSettings,
+  },
+  {
     title: "Catálogo de Cursos",
     url: "/academico/dashboard/catalogo",
     icon: IconDatabase,
   },
-  /* {
-    title: "Información de Grupos",
-    url: "/dashboard/informacion-grupos",
-    icon: IconReport,
-  }, */
 ];
 
 export const navMainOptions: NavSimpleItem[] = [

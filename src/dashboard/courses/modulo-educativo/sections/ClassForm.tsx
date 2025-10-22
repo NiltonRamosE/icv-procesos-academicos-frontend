@@ -11,35 +11,31 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  Upload, 
-  Lock
-} from "lucide-react";
+import { CheckCircle, AlertCircle, BookOpen } from "lucide-react";
 import { config } from "config";
 
-interface MaterialsUploadProps {
+interface ClassFormProps {
   token: string | null;
   groupId: string;
-  onMaterialsAdded: () => void;
+  onClassAdded: () => void;
   isTeacher: boolean;
 }
 
-export default function MaterialsUpload({ 
+export default function ClassForm({ 
   token, 
   groupId, 
-  onMaterialsAdded,
+  onClassAdded,
   isTeacher 
-}: MaterialsUploadProps) {
+}: ClassFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [formData, setFormData] = useState({
-    title: "",
+    class_name: "",
     description: "",
-    type: "document",
-    file_url: "",
-    visibility: "public",
+    class_date: "",
+    start_time: "",
+    end_time: "",
+    class_status: "SCHEDULED",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -50,10 +46,10 @@ export default function MaterialsUpload({
     }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
+  const handleSelectChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      class_status: value
     }));
   };
 
@@ -63,7 +59,7 @@ export default function MaterialsUpload({
     if (!isTeacher) {
       setMessage({
         type: 'error',
-        text: 'Solo los docentes pueden cargar materiales'
+        text: 'Solo los docentes pueden crear clases'
       });
       return;
     }
@@ -73,53 +69,58 @@ export default function MaterialsUpload({
     try {
       const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
       
-      const endpoint = `${config.apiUrl}${config.endpoints.educationalMaterials.create}`
-        .replace(':groupId', groupId);
+      // Formatear las fechas para Laravel
+      const classDate = new Date(formData.class_date);
+      const startTime = new Date(`${formData.class_date}T${formData.start_time}`);
+      const endTime = new Date(`${formData.class_date}T${formData.end_time}`);
 
-      const materialData = {
-        title: formData.title,
+      const classData = {
+        group_id: parseInt(groupId),
+        class_name: formData.class_name,
         description: formData.description,
-        type: formData.type,
-        file_url: formData.file_url,
-        visibility: formData.visibility,
+        class_date: classDate.toISOString().split('T')[0],
+        start_time: startTime.toISOString().replace('T', ' ').substring(0, 19),
+        end_time: endTime.toISOString().replace('T', ' ').substring(0, 19),
+        class_status: formData.class_status,
       };
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${config.apiUrl}${config.endpoints.classes.create}`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${tokenWithoutQuotes}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(materialData)
+        body: JSON.stringify(classData)
       });
 
       if (!response.ok) {
-        throw new Error("Error al cargar el material");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al crear la clase");
       }
 
       setMessage({
         type: 'success',
-        text: `Material "${formData.title}" cargado exitosamente`
+        text: `Clase "${formData.class_name}" creada exitosamente`
       });
 
       // Limpiar formulario
       setFormData({
-        title: "",
+        class_name: "",
         description: "",
-        type: "document",
-        file_url: "",
-        visibility: "public",
+        class_date: "",
+        start_time: "",
+        end_time: "",
+        class_status: "SCHEDULED",
       });
 
-      // Notificar que se agregó un material
-      onMaterialsAdded();
+      onClassAdded();
 
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error:", error);
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Error al cargar el material'
+        text: error instanceof Error ? error.message : 'Error al crear la clase'
       });
     } finally {
       setIsLoading(false);
@@ -133,9 +134,9 @@ export default function MaterialsUpload({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cargar Nuevo Material</CardTitle>
+        <CardTitle>Crear Nueva Clase</CardTitle>
         <CardDescription>
-          Carga videos, documentos, textos y otros recursos educativos
+          Agrega una nueva sesión de clase al grupo
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -158,14 +159,14 @@ export default function MaterialsUpload({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Título */}
+          {/* Nombre de la Clase */}
           <div className="space-y-2">
-            <Label htmlFor="title">Título del Material *</Label>
+            <Label htmlFor="class_name">Nombre de la Clase *</Label>
             <Input 
-              id="title"
-              name="title"
-              placeholder="Ej: Introducción a JavaScript"
-              value={formData.title}
+              id="class_name"
+              name="class_name"
+              placeholder="Ej: Introducción a HTML"
+              value={formData.class_name}
               onChange={handleInputChange}
               required
             />
@@ -177,79 +178,72 @@ export default function MaterialsUpload({
             <textarea 
               id="description"
               name="description"
-              placeholder="Describe el contenido del material..."
+              placeholder="Describe el contenido de la clase..."
               className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={formData.description}
               onChange={handleInputChange}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            {/* Tipo de Material */}
-            <div className="space-y-2">
-              <Label htmlFor="type">Tipo de Material *</Label>
-              <Select 
-                value={formData.type}
-                onValueChange={(value) => handleSelectChange('type', value)}
-              >
-                <SelectTrigger id="type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="video">Video</SelectItem>
-                  <SelectItem value="document">Documento</SelectItem>
-                  <SelectItem value="text">Texto</SelectItem>
-                  <SelectItem value="image">Imagen</SelectItem>
-                  <SelectItem value="exam">Examen</SelectItem>
-                  <SelectItem value="assignment">Tarea</SelectItem>
-                  <SelectItem value="resource">Recurso</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Visibilidad */}
-            <div className="space-y-2">
-              <Label htmlFor="visibility">Visibilidad *</Label>
-              <Select 
-                value={formData.visibility}
-                onValueChange={(value) => handleSelectChange('visibility', value)}
-              >
-                <SelectTrigger id="visibility">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="public">
-                    <div className="flex items-center gap-2">
-                      Público (Todos ven)
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="private">
-                    <div className="flex items-center gap-2">
-                      <Lock className="h-3 w-3" />
-                      Privado (Solo profesor)
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* URL del Archivo */}
+          {/* Fecha de la Clase */}
           <div className="space-y-2">
-            <Label htmlFor="file_url">URL del Archivo *</Label>
+            <Label htmlFor="class_date">Fecha de la Clase *</Label>
             <Input 
-              id="file_url"
-              name="file_url"
-              type="url"
-              placeholder="https://ejemplo.com/archivo"
-              value={formData.file_url}
+              id="class_date"
+              name="class_date"
+              type="date"
+              value={formData.class_date}
               onChange={handleInputChange}
               required
             />
-            <p className="text-xs text-muted-foreground">
-              Proporciona la URL donde está alojado el archivo (YouTube, Google Drive, etc.)
-            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            {/* Hora de Inicio */}
+            <div className="space-y-2">
+              <Label htmlFor="start_time">Hora de Inicio *</Label>
+              <Input 
+                id="start_time"
+                name="start_time"
+                type="time"
+                value={formData.start_time}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            {/* Hora de Fin */}
+            <div className="space-y-2">
+              <Label htmlFor="end_time">Hora de Fin *</Label>
+              <Input 
+                id="end_time"
+                name="end_time"
+                type="time"
+                value={formData.end_time}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            {/* Estado */}
+            <div className="space-y-2">
+              <Label htmlFor="class_status">Estado *</Label>
+              <Select 
+                value={formData.class_status}
+                onValueChange={handleSelectChange}
+              >
+                <SelectTrigger id="class_status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SCHEDULED">Programada</SelectItem>
+                  <SelectItem value="IN_PROGRESS">En Progreso</SelectItem>
+                  <SelectItem value="COMPLETED">Completada</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -258,11 +252,12 @@ export default function MaterialsUpload({
               variant="outline" 
               className="flex-1"
               onClick={() => setFormData({
-                title: "",
+                class_name: "",
                 description: "",
-                type: "document",
-                file_url: "",
-                visibility: "public",
+                class_date: "",
+                start_time: "",
+                end_time: "",
+                class_status: "SCHEDULED",
               })}
               disabled={isLoading}
             >
@@ -273,8 +268,8 @@ export default function MaterialsUpload({
               className="flex-1 gap-2"
               disabled={isLoading}
             >
-              <Upload className="h-4 w-4" />
-              {isLoading ? "Cargando..." : "Cargar Material"}
+              <BookOpen className="h-4 w-4" />
+              {isLoading ? "Creando..." : "Crear Clase"}
             </Button>
           </div>
         </form>

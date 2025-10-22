@@ -45,13 +45,19 @@ export const config = {
       getEmploymentData: "/api/graduates/employment",
     },
 
-
-    educationalMaterials: {
-      getByGroup: "/api/groups/:groupId/materials",
-      create: "/api/groups/:groupId/materials",
-      update: "/api/groups/:groupId/materials/:materialId",
-      delete: "/api/groups/:groupId/materials/:materialId",
-      toggleVisibility: "/api/groups/:groupId/materials/:materialId/visibility",
+    classes: {
+      getByGroup: "/api/classes/group/:groupId",
+      create: "/api/classes",
+      update: "/api/classes/:class",
+      delete: "/api/classes/:class",
     },
+
+    materials: {
+      list: "/api/classes/:classId/materials",
+      create: "/api/classes/:classId/materials",
+      update: "/api/classes/:classId/materials/:materialId",
+      delete: "/api/classes/:classId/materials/:materialId",
+      toggleVisibility: "/api/classes/:classId/materials/:materialId/visibility",
+    }
   },
 };
