@@ -76,7 +76,7 @@ export default function AccountProfile() {
           city: userData.city || "",
           country: userData.country || "Perú",
           birth_date: userData.birth_date || "",
-          profile_photo: userData.profile_photo || "/images/9440461.webp",
+          profile_photo: userData.profile_photo || "/academico/images/9440461.webp",
           role: userData.role || "student"
         });
       }
@@ -180,7 +180,7 @@ export default function AccountProfile() {
         city: user.city || "",
         country: user.country || "Perú",
         birth_date: user.birth_date || "",
-        profile_photo: user.profile_photo || "/images/9440461.webp",
+        profile_photo: user.profile_photo || "/academico/images/9440461.webp",
         role: user.role || "student"
       });
     }
