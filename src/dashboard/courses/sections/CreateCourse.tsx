@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { IconCheck, IconAlertCircle, IconX } from "@tabler/icons-react";
 import { config } from "config";
+import Cloudinary from "@/services/Cloudinary";
 
 interface CreateCourseProps {
   token: string | null;
@@ -330,13 +331,13 @@ export default function CreateCourse({ token }: CreateCourseProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="course_image">URL de Imagen del Curso</Label>
-                  <Input
-                    id="course_image"
-                    type="url"
-                    placeholder="https://ejemplo.com/curso.jpg"
-                    maxLength={255}
-                    value={formData.course_image}
-                    onChange={handleChange}
+                  <Cloudinary
+                    onUpload={(url) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        course_image: url,
+                      }))
+                    }
                   />
                 </div>
 
