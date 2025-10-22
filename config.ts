@@ -12,6 +12,7 @@ export const config = {
     auth: {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
+      register: "/api/auth/register",
     },
       
     groups: {
