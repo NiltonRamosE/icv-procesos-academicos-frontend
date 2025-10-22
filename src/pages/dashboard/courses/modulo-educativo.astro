@@ -1,15 +1,15 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import Catalog from '@/dashboard/catalog/Catalog';
+import EducationModule from '@/dashboard/courses/modulo-educativo/EducationModule';
 const robots = ["index", "follow"];
-const title = "Cursos";
-const description = "Cursos disponibles para estudiantes y profesionales.";
-const keywords = ["Cursos", "Instituto de Capacitación y Desarrollo Virtual", "Capacitación", "Desarrollo Virtual", "Estudiantes", "Profesionales"];
+const title = "Modulo Educativo";
+const description = "Modulo Educativo disponibles para estudiantes y profesionales.";
+const keywords = ["Modulo Educativo", "Instituto de Capacitación y Desarrollo Virtual", "Capacitación", "Desarrollo Virtual", "Estudiantes", "Profesionales"];
 const url = "https://instituto.cetivirgendelapuerta.com/academico/dashboard/catalogo";
 const imageOG = "/academico/incadev_isologotipo.webp";
 const imagetwt = "/academico/incadev_isologotipo.webp";
 ---
 
 <DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
-	<Catalog client:load/>
+	<EducationModule client:load/>
 </DashboardLayout>
