@@ -36,6 +36,16 @@ export const config = {
       create: "/api/courses",
     },
 
+    graduates: {
+      getSurveys: "/api/graduates/surveys",
+      submitSurvey: "/api/graduates/surveys",
+      getProfile: "/api/graduates/profile",
+      updateProfile: "/api/graduates/profile",
+      getStatistics: "/api/graduates/statistics",
+      getEmploymentData: "/api/graduates/employment",
+    },
+
+
     educationalMaterials: {
       getByGroup: "/api/groups/:groupId/materials",
       create: "/api/groups/:groupId/materials",

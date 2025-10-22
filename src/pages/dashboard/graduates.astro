@@ -1,0 +1,15 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import GraduatesModule from '@/dashboard/graduates/GraduatesModule';
+const robots = ["index", "follow"];
+const title = "Seguimiento de Egresados";
+const description = "Módulo de seguimiento y estadísticas de egresados.";
+const keywords = ["Egresados", "Seguimiento", "Encuestas", "Empleabilidad", "Instituto de Capacitación"];
+const url = "https://icv-procesos-academicos-frontend.vercel.app/dashboard/egresados";
+const imageOG = "/incadev_isologotipo.webp";
+const imagetwt = "/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<GraduatesModule client:load/>
+</DashboardLayout>
