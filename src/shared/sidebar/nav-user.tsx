@@ -117,7 +117,7 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <a href="/dashboard/account/">
+                <a href="/academico/dashboard/account/">
                   <IconUserCircle />
                     Account
                 </a>
