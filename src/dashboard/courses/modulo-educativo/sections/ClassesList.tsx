@@ -59,9 +59,10 @@ export default function ClassesList({
 
   const loadClasses = async () => {
     setLoading(true);
+    setMessage(null);
     try {
       const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
-      
+
       const endpoint = `${config.apiUrl}${config.endpoints.classes.getByGroup}`
         .replace(':groupId', groupId);
 
@@ -79,17 +80,29 @@ export default function ClassesList({
 
       const data = await response.json();
       const classesArray = Array.isArray(data) ? data : data.classes || [];
+
       setClasses(classesArray);
+
+      if (classesArray.length === 0) {
+        setMessage({
+          type: "success",
+          text: "Aún no hay clases programadas en este grupo."
+        });
+      } else {
+        setMessage(null);
+      }
+
     } catch (error) {
       console.error("Error:", error);
       setMessage({
         type: 'error',
-        text: 'Error al cargar las clases'
+        text: 'Error al cargar las clases desde el servidor.'
       });
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleDeleteClass = async (classId: number) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
