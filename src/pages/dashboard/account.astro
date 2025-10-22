@@ -1,0 +1,15 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import AccountProfile from '@/dashboard/account/AccountProfile';
+const robots = ["index", "follow"];
+const title = "Mi Cuenta - Perfil de Usuario";
+const description = "Gestiona tu información personal y configuración de cuenta.";
+const keywords = ["Cuenta", "Perfil", "Usuario", "Configuración", "Instituto de Capacitación"];
+const url = "https://icv-procesos-academicos-frontend.vercel.app/academico/dashboard/account";
+const imageOG = "/incadev_isologotipo.webp";
+const imagetwt = "/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<AccountProfile client:load/>
+</DashboardLayout>
