@@ -50,6 +50,7 @@ export const siteConfig = {
 
 const urlManagementGroup = "/academico/dashboard/gestion-grupos";
 const urlCourses = "/academico/dashboard/cursos";
+const urlGraduates = "/academico/dashboard/graduates";
 
 export const navMainCollapse: NavItem[] = [
   {
@@ -78,20 +79,20 @@ export const navMainCollapse: NavItem[] = [
   },
   {
     title: "Seguimiento Egresados",
-    url: "/dashboard/graduates",
+    url: urlGraduates,
     icon: GraduationCap,
     items: [
       {
         title: "Encuestas",
-        url: "/dashboard/graduates#encuestas",
+        url: `${urlGraduates}#encuestas`,
       },
       {
         title: "Perfil Laboral",
-        url: "/dashboard/graduates#perfil-laboral",
+        url: `${urlGraduates}#perfil-laboral`,
       },
       {
         title: "Estadísticas",
-        url: "/dashboard/graduates#estadisticas",
+        url: `${urlGraduates}#estadisticas`,
       },
     ],
   },
