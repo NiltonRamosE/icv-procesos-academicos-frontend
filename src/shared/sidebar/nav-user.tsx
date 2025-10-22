@@ -117,8 +117,10 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <IconUserCircle />
-                Account
+                <a href="/dashboard/account/">
+                  <IconUserCircle />
+                    Account
+                </a>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconCreditCard />

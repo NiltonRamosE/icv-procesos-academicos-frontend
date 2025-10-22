@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Bot,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react"
 import {
@@ -75,6 +76,25 @@ export const navMainCollapse: NavItem[] = [
       }
     ],
   },
+  {
+    title: "Seguimiento Egresados",
+    url: "/dashboard/graduates",
+    icon: GraduationCap,
+    items: [
+      {
+        title: "Encuestas",
+        url: "/dashboard/graduates#encuestas",
+      },
+      {
+        title: "Perfil Laboral",
+        url: "/dashboard/graduates#perfil-laboral",
+      },
+      {
+        title: "Estadísticas",
+        url: "/dashboard/graduates#estadisticas",
+      },
+    ],
+  },
 ];
 
 export const navSimpleMain: NavSimpleItem[] = [
@@ -87,11 +107,6 @@ export const navSimpleMain: NavSimpleItem[] = [
     title: "Catálogo de Cursos",
     url: "/academico/dashboard/catalogo",
     icon: IconDatabase,
-  },
-  {
-    title: "Seguimiento del egresado",
-    url: "/academico/dashboard/graduates",
-    icon: IconReport,
   },
 ];
 

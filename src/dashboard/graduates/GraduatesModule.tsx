@@ -28,6 +28,25 @@ export default function GraduatesModule() {
     setMounted(true);
   }, []);
 
+   // Detectar la pestaña desde la URL (hash)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.substring(1);
+      if (hash === 'encuestas') {
+        setActiveTab('surveys');
+      } else if (hash === 'perfil-laboral') {
+        setActiveTab('employment');
+      } else if (hash === 'estadisticas') {
+        setActiveTab('statistics');
+      }
+    };
+
+    handleHashChange(); // Ejecutar al cargar
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   if (!mounted) return null;
 
   // Determinar si es administrador
