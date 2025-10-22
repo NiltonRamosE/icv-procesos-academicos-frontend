@@ -26,6 +26,7 @@ export const config = {
       createClass: "/api/groups/:id/classes",
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
+      join: "/api/groups/:id/join",
     },
     
     courses: {
@@ -45,5 +46,12 @@ export const config = {
     },
 
 
+    educationalMaterials: {
+      getByGroup: "/api/groups/:groupId/materials",
+      create: "/api/groups/:groupId/materials",
+      update: "/api/groups/:groupId/materials/:materialId",
+      delete: "/api/groups/:groupId/materials/:materialId",
+      toggleVisibility: "/api/groups/:groupId/materials/:materialId/visibility",
+    },
   },
 };

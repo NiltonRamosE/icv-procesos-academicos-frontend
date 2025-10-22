@@ -79,7 +79,7 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
         name: "Desarrollo Web Full Stack - Grupo A",
         courseName: "Desarrollo de Aplicaciones Web",
         teacherName: "Prof. Carlos Rodríguez",
-        teacherPhoto: "/images/9440461.webp",
+        teacherPhoto: "/academico/images/9440461.webp",
         startDate: "2025-01-15",
         endDate: "2025-06-30"
       });
@@ -172,16 +172,16 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
           { 
             id: 1, 
             name: "Prof. Carlos Rodríguez", 
-            photo: "/images/9440461.webp", 
+            photo: "/academico/images/9440461.webp", 
             email: "carlos.rodriguez@incadev.edu.pe" 
           }
         ],
         students: [
-          { id: 2, name: "Ana García Mendoza", photo: "/images/9440461.webp", email: "ana.garcia@estudiante.edu.pe" },
-          { id: 3, name: "Luis Pérez Santos", photo: "/images/9440461.webp", email: "luis.perez@estudiante.edu.pe" },
-          { id: 4, name: "María Torres Vega", photo: "/images/9440461.webp", email: "maria.torres@estudiante.edu.pe" },
-          { id: 5, name: "José Ramírez Cruz", photo: "/images/9440461.webp", email: "jose.ramirez@estudiante.edu.pe" },
-          { id: 6, name: "Carmen López Silva", photo: "/images/9440461.webp", email: "carmen.lopez@estudiante.edu.pe" }
+          { id: 2, name: "Ana García Mendoza", photo: "/academico/images/9440461.webp", email: "ana.garcia@estudiante.edu.pe" },
+          { id: 3, name: "Luis Pérez Santos", photo: "/academico/images/9440461.webp", email: "luis.perez@estudiante.edu.pe" },
+          { id: 4, name: "María Torres Vega", photo: "/academico/images/9440461.webp", email: "maria.torres@estudiante.edu.pe" },
+          { id: 5, name: "José Ramírez Cruz", photo: "/academico/images/9440461.webp", email: "jose.ramirez@estudiante.edu.pe" },
+          { id: 6, name: "Carmen López Silva", photo: "/academico/images/9440461.webp", email: "carmen.lopez@estudiante.edu.pe" }
         ]
       });
 

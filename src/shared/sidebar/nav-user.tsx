@@ -61,7 +61,7 @@ export function NavUser({
         toast.success("¡Has cerrado sesión exitosamente!");
 
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = "/academico";
         }, 2000);
       } else {
         const errorData = await response.json();
