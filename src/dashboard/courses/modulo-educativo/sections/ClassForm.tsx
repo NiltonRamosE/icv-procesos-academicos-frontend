@@ -11,7 +11,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { CheckCircle, AlertCircle, BookOpen } from "lucide-react";
+import { CheckCircle, AlertCircle, BookOpen, Link } from "lucide-react";
 import { config } from "config";
 
 interface ClassFormProps {
@@ -35,6 +35,7 @@ export default function ClassForm({
     class_date: "",
     start_time: "",
     end_time: "",
+    meeting_url: "",
     class_status: "SCHEDULED",
   });
 
@@ -69,7 +70,6 @@ export default function ClassForm({
     try {
       const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
       
-      // Formatear las fechas para Laravel
       const classDate = new Date(formData.class_date);
       const startTime = new Date(`${formData.class_date}T${formData.start_time}`);
       const endTime = new Date(`${formData.class_date}T${formData.end_time}`);
@@ -81,6 +81,7 @@ export default function ClassForm({
         class_date: classDate.toISOString().split('T')[0],
         start_time: startTime.toISOString().replace('T', ' ').substring(0, 19),
         end_time: endTime.toISOString().replace('T', ' ').substring(0, 19),
+        meeting_url: formData.meeting_url || null,
         class_status: formData.class_status,
       };
 
@@ -103,13 +104,13 @@ export default function ClassForm({
         text: `Clase "${formData.class_name}" creada exitosamente`
       });
 
-      // Limpiar formulario
       setFormData({
         class_name: "",
         description: "",
         class_date: "",
         start_time: "",
         end_time: "",
+        meeting_url: "",
         class_status: "SCHEDULED",
       });
 
@@ -157,9 +158,8 @@ export default function ClassForm({
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           
-          {/* Nombre de la Clase */}
           <div className="space-y-2">
             <Label htmlFor="class_name">Nombre de la Clase *</Label>
             <Input 
@@ -172,7 +172,6 @@ export default function ClassForm({
             />
           </div>
 
-          {/* Descripción */}
           <div className="space-y-2">
             <Label htmlFor="description">Descripción</Label>
             <textarea 
@@ -185,7 +184,26 @@ export default function ClassForm({
             />
           </div>
 
-          {/* Fecha de la Clase */}
+          <div className="space-y-2">
+            <Label htmlFor="meeting_url">
+              <div className="flex items-center gap-2">
+                <Link className="h-4 w-4" />
+                Enlace de la Reunión (Opcional)
+              </div>
+            </Label>
+            <Input 
+              id="meeting_url"
+              name="meeting_url"
+              type="url"
+              placeholder="https://meet.google.com/xxx-xxxx-xxx"
+              value={formData.meeting_url}
+              onChange={handleInputChange}
+            />
+            <p className="text-xs text-muted-foreground">
+              Agrega el enlace de Zoom, Google Meet, Teams, etc.
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="class_date">Fecha de la Clase *</Label>
             <Input 
@@ -200,7 +218,6 @@ export default function ClassForm({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             
-            {/* Hora de Inicio */}
             <div className="space-y-2">
               <Label htmlFor="start_time">Hora de Inicio *</Label>
               <Input 
@@ -213,7 +230,6 @@ export default function ClassForm({
               />
             </div>
 
-            {/* Hora de Fin */}
             <div className="space-y-2">
               <Label htmlFor="end_time">Hora de Fin *</Label>
               <Input 
@@ -226,7 +242,6 @@ export default function ClassForm({
               />
             </div>
 
-            {/* Estado */}
             <div className="space-y-2">
               <Label htmlFor="class_status">Estado *</Label>
               <Select 
@@ -257,6 +272,7 @@ export default function ClassForm({
                 class_date: "",
                 start_time: "",
                 end_time: "",
+                meeting_url: "",
                 class_status: "SCHEDULED",
               })}
               disabled={isLoading}
@@ -264,7 +280,8 @@ export default function ClassForm({
               Limpiar
             </Button>
             <Button 
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               className="flex-1 gap-2"
               disabled={isLoading}
             >
@@ -272,7 +289,7 @@ export default function ClassForm({
               {isLoading ? "Creando..." : "Crear Clase"}
             </Button>
           </div>
-        </form>
+        </div>
       </CardContent>
     </Card>
   );
