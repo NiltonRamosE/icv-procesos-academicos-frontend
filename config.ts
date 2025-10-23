@@ -9,6 +9,12 @@ export const config = {
   apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
+
+    users: {
+      getById: "/api/users/:id",
+      update: "/api/users/:id"
+    },
+
     auth: {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
