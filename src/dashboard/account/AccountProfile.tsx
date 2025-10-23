@@ -92,10 +92,8 @@ export default function AccountProfile() {
       
       setToken(t ?? null);
       
-      // Declarar la variable userId
       let userId: number | null = null;
 
-      // Primero intentar con los datos del localStorage
       if (u) {
         try {
           const userData = JSON.parse(u);
@@ -108,8 +106,7 @@ export default function AccountProfile() {
         }
       }
 
-      // Luego hacer fetch a la API para obtener datos actualizados
-      if (t && userId) { // ← USAR userId EN LUGAR DE user.id
+      if (t && userId) {
         const tokenWithoutQuotes = t.replace(/^"|"$/g, '');
         console.log("Fetching profile for user ID:", userId);
         
@@ -125,7 +122,6 @@ export default function AccountProfile() {
           setUser(apiData);
           setFormData(mapApiDataToForm(apiData));
           
-          // Actualizar localStorage con datos frescos
           localStorage.setItem("user", JSON.stringify(apiData));
         } else {
           console.error("Error fetching profile:", await response.text());
@@ -176,7 +172,7 @@ export default function AccountProfile() {
           email: formData.email,
           phone_number: formData.phone,
           address: formData.address,
-          country_location: formData.city, // Enviar city como country_location
+          country_location: formData.city,
           country: formData.country,
           birth_date: formData.birth_date,
           profile_photo: formData.profile_photo
@@ -213,7 +209,6 @@ export default function AccountProfile() {
   };
 
   const handleCancel = () => {
-    // Restaurar datos originales del usuario actual
     if (user) {
       setFormData(mapApiDataToForm(user));
     }
