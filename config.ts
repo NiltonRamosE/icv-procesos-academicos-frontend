@@ -5,7 +5,7 @@
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
 export const config = {
-  //apiUrl:"https://icv-procesos-academicos-847846098195.us-central1.run.app",
+  //apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
   apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
@@ -13,6 +13,8 @@ export const config = {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
       register: "/api/auth/register",
+      redirect: "/auth/google/redirect",
+      callback: "/auth/google/callback",
     },
       
     groups: {
