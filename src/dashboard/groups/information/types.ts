@@ -14,6 +14,8 @@ export interface Class {
   class_date: string;
   start_time: string;
   end_time: string;
+  description: string;
+  class_status: string;
 }
 
 export interface PreviousCourse {

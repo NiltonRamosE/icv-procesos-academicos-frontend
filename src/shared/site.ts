@@ -2,6 +2,7 @@ import {
   BookOpen,
   Bot,
   GraduationCap,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react"
 import {
@@ -51,6 +52,8 @@ export const siteConfig = {
 const urlManagementGroup = "/academico/dashboard/gestion-grupos";
 const urlCourses = "/academico/dashboard/cursos";
 const urlGraduates = "/academico/dashboard/graduates";
+const urlAttendance = "/academico/dashboard/asistencia";
+
 
 export const navMainCollapse: NavItem[] = [
   {
@@ -96,14 +99,30 @@ export const navMainCollapse: NavItem[] = [
       },
     ],
   },
+
+  {
+    title: "Asistencia",
+    url: urlAttendance,
+    icon: ClipboardCheck,
+    items: [
+      {
+        title: "Registro de Asistencia",
+        url: `${urlAttendance}#registro-asistencia`,
+      },
+      {
+        title: "Estadísticas",
+        url: `${urlAttendance}#estadisticas-asistencia`,
+      },
+    ],
+  },
 ];
 
 export const navSimpleMain: NavSimpleItem[] = [
-  {
+  /* {
     title: "Gestión de Grupos",
     url: `${urlManagementGroup}`,
     icon: IconSettings,
-  },
+  }, */
   {
     title: "Catálogo de Cursos",
     url: "/academico/dashboard/catalogo",

@@ -59,10 +59,9 @@ export default function ClassesList({
 
   const loadClasses = async () => {
     setLoading(true);
-    setMessage(null);
     try {
       const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
-
+      
       const endpoint = `${config.apiUrl}${config.endpoints.classes.getByGroup}`
         .replace(':groupId', groupId);
 
@@ -80,29 +79,17 @@ export default function ClassesList({
 
       const data = await response.json();
       const classesArray = Array.isArray(data) ? data : data.classes || [];
-
       setClasses(classesArray);
-
-      if (classesArray.length === 0) {
-        setMessage({
-          type: "success",
-          text: "Aún no hay clases programadas en este grupo."
-        });
-      } else {
-        setMessage(null);
-      }
-
     } catch (error) {
       console.error("Error:", error);
       setMessage({
         type: 'error',
-        text: 'Error al cargar las clases desde el servidor.'
+        text: 'Error al cargar las clases'
       });
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleDeleteClass = async (classId: number) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
@@ -287,11 +274,15 @@ export default function ClassesList({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onEditClass(classItem.id)}
+                      onClick={() => {
+                        const params = new URLSearchParams(window.location.search);
+                        const groupId = params.get('groupId');
+                        window.location.href = `/academico/dashboard/courses/clase?classId=${classItem.id}&groupId=${groupId}`;
+                      }}
                       className="gap-2"
                     >
                       <FileText className="h-4 w-4" />
-                      <span className="hidden sm:inline">Materiales</span>
+                      <span className="hidden sm:inline">Ver Clase</span>
                     </Button>
 
                     {isTeacher && (
@@ -300,6 +291,7 @@ export default function ClassesList({
                           variant="ghost"
                           size="sm"
                           onClick={() => onEditClass(classItem.id)}
+                          title="Gestionar materiales"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -310,6 +302,7 @@ export default function ClassesList({
                           onClick={() => handleDeleteClass(classItem.id)}
                           disabled={deletingId === classItem.id}
                           className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                          title="Eliminar clase"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

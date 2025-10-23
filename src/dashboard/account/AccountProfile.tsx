@@ -32,7 +32,11 @@ interface UserData {
   country?: string;
   birth_date?: string;
   profile_photo?: string;
-  role: string;
+  role: string | string[];
+  dni?: string;
+  document?: string;
+  country_location?: string;
+  gender?: string;
 }
 
 export default function AccountProfile() {
@@ -58,34 +62,87 @@ export default function AccountProfile() {
     role: ""
   });
 
+  // Función para mapear los datos de la API al formulario
+  const mapApiDataToForm = (apiData: any): UserData => {
+    return {
+      id: apiData.id || 0,
+      first_name: apiData.first_name || "",
+      last_name: apiData.last_name || "",
+      email: apiData.email || "",
+      phone: apiData.phone_number || "", // Mapear phone_number a phone
+      address: apiData.address || "",
+      city: apiData.country_location || "", // Usar country_location como city
+      country: apiData.country || "Perú",
+      birth_date: apiData.birth_date ? apiData.birth_date.split('T')[0] : "", // Formatear fecha
+      profile_photo: apiData.profile_photo || "/academico/images/9440461.webp",
+      role: apiData.role || "student",
+      dni: apiData.dni || "",
+      document: apiData.document || "",
+      country_location: apiData.country_location || "",
+      gender: apiData.gender || ""
+    };
+  };
+
   useEffect(() => {
-    const t = window.localStorage.getItem("token");
-    const u = window.localStorage.getItem("user");
-    setToken(t ?? null);
-    try { 
-      const userData = u ? JSON.parse(u) : null;
-      setUser(userData);
-      if (userData) {
-        setFormData({
-          id: userData.id || 0,
-          first_name: userData.first_name || "",
-          last_name: userData.last_name || "",
-          email: userData.email || "",
-          phone: userData.phone || "",
-          address: userData.address || "",
-          city: userData.city || "",
-          country: userData.country || "Perú",
-          birth_date: userData.birth_date || "",
-          profile_photo: userData.profile_photo || "/images/9440461.webp",
-          role: userData.role || "student"
-        });
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const t = window.localStorage.getItem("token");
+      const u = window.localStorage.getItem("user");
+      
+      setToken(t ?? null);
+      
+      let userId: number | null = null;
+
+      if (u) {
+        try {
+          const userData = JSON.parse(u);
+          setUser(userData);
+          setFormData(mapApiDataToForm(userData));
+          userId = userData.id; // ← GUARDAR EL ID AQUÍ
+          console.log("Usuario del localStorage:", userData);
+        } catch (error) {
+          console.error("Error parsing localStorage user:", error);
+        }
       }
-    } catch { 
-      setUser(null); 
+
+      if (t && userId) {
+        const tokenWithoutQuotes = t.replace(/^"|"$/g, '');
+        console.log("Fetching profile for user ID:", userId);
+        
+        const response = await fetch(`${config.apiUrl}${config.endpoints.users.getById}`.replace(":id", userId.toString()), {
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Accept": "application/json"
+          }
+        });
+
+        if (response.ok) {
+          const apiData = await response.json();
+          setUser(apiData);
+          setFormData(mapApiDataToForm(apiData));
+          
+          localStorage.setItem("user", JSON.stringify(apiData));
+        } else {
+          console.error("Error fetching profile:", await response.text());
+        }
+      } else {
+        console.log("No se pudo obtener userId para hacer fetch a la API");
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al cargar el perfil. Por favor, recarga la página."
+      });
+    } finally {
+      setLoading(false);
+      setMounted(true);
     }
-    setMounted(true);
-    setLoading(false);
-  }, []);
+  };
+
+  fetchUserProfile();
+}, []);
 
   const handleChange = (field: keyof UserData, value: string) => {
     setFormData(prev => ({
@@ -99,96 +156,79 @@ export default function AccountProfile() {
     setSaving(true);
 
     try {
-        const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
+      const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
 
-        const response = await fetch(`${config.apiUrl}/api/profile`, {
+      
+      const response = await fetch(`${config.apiUrl}${config.endpoints.users.update}`.replace(":id", user.id), {
         method: "PUT",
         headers: {
-            "Authorization": `Bearer ${tokenWithoutQuotes}`,
-            "Content-Type": "application/json",
-            "Accept": "application/json"
+          "Authorization": `Bearer ${tokenWithoutQuotes}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email,
-            phone_number: formData.phone, // Laravel usa phone_number
-            address: formData.address,
-            city: formData.city,
-            country: formData.country,
-            birth_date: formData.birth_date,
-            profile_photo: formData.profile_photo
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          phone_number: formData.phone,
+          address: formData.address,
+          country_location: formData.city,
+          country: formData.country,
+          birth_date: formData.birth_date,
+          profile_photo: formData.profile_photo
         })
-        });
+      });
 
-        if (!response.ok) {
+      if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Error al actualizar el perfil.");
-        }
+      }
 
-        const updatedUser = await response.json();
+      const updatedUser = await response.json();
+      
+      // Actualizar estado y localStorage con la respuesta completa
+      setUser(updatedUser);
+      setFormData(mapApiDataToForm(updatedUser));
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
-
-        setMessage({
+      setMessage({
         type: 'success',
         text: "¡Perfil actualizado exitosamente!"
-        });
-        setIsEditing(false);
-        setTimeout(() => setMessage(null), 3000);
+      });
+      setIsEditing(false);
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
-        console.error("Error actualizando perfil:", error);
-        setMessage({
+      console.error("Error actualizando perfil:", error);
+      setMessage({
         type: 'error',
-        text: "Error al actualizar el perfil. Por favor, intenta nuevamente."
-        });
+        text: error instanceof Error ? error.message : "Error al actualizar el perfil. Por favor, intenta nuevamente."
+      });
     } finally {
-        setSaving(false);
+      setSaving(false);
     }
-};
-
-  useEffect(() => {
-  const t = window.localStorage.getItem("token");
-  if (!t) return;
-  
-  const tokenWithoutQuotes = t.replace(/^"|"$/g, '');
-
-  fetch(`${config.apiUrl}/api/profile`, {
-    headers: {
-      "Authorization": `Bearer ${tokenWithoutQuotes}`,
-      "Accept": "application/json"
-    }
-  })
-    .then(res => res.json())
-    .then(data => setFormData(data))
-    .catch(err => console.error("Error al cargar perfil:", err));
-}, []);
-
-
+  };
 
   const handleCancel = () => {
-    // Restaurar datos originales
     if (user) {
-      setFormData({
-        id: user.id || 0,
-        first_name: user.first_name || "",
-        last_name: user.last_name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        city: user.city || "",
-        country: user.country || "Perú",
-        birth_date: user.birth_date || "",
-        profile_photo: user.profile_photo || "/images/9440461.webp",
-        role: user.role || "student"
-      });
+      setFormData(mapApiDataToForm(user));
     }
     setIsEditing(false);
     setMessage(null);
   };
 
-  const getRoleLabel = (role: string) => {
+  const getRoleLabel = (role: string | string[]) => {
+    if (Array.isArray(role)) {
+      return role.map(r => {
+        const roles: Record<string, string> = {
+          student: "Estudiante",
+          teacher: "Docente",
+          admin: "Administrador",
+          graduate: "Egresado"
+        };
+        return roles[r] || r;
+      }).join(", ");
+    }
+    
     const roles: Record<string, string> = {
       student: "Estudiante",
       teacher: "Docente",
@@ -196,6 +236,10 @@ export default function AccountProfile() {
       graduate: "Egresado"
     };
     return roles[role] || role;
+  };
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
 
   if (!mounted || loading) {
@@ -262,7 +306,7 @@ export default function AccountProfile() {
                           <Avatar className="h-32 w-32">
                             <AvatarImage src={formData.profile_photo} alt={formData.first_name} />
                             <AvatarFallback className="text-3xl">
-                              {formData.first_name?.[0]}{formData.last_name?.[0]}
+                              {getInitials(formData.first_name, formData.last_name)}
                             </AvatarFallback>
                           </Avatar>
                           {isEditing && (
@@ -280,13 +324,18 @@ export default function AccountProfile() {
                             {formData.first_name} {formData.last_name}
                           </h2>
                           <p className="text-muted-foreground text-lg">{formData.email}</p>
-                          <div className="flex gap-2 justify-center md:justify-start">
+                          <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                             <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
                               {getRoleLabel(formData.role)}
                             </span>
                             <span className="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-sm font-medium border border-green-500/20">
                               Cuenta Activa
                             </span>
+                            {formData.dni && (
+                              <span className="px-3 py-1 bg-blue-500/10 text-blue-500 rounded-full text-sm font-medium border border-blue-500/20">
+                                DNI: {formData.dni}
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -342,22 +391,35 @@ export default function AccountProfile() {
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="email">
-                            <div className="flex items-center gap-2">
-                              <IconMail className="h-4 w-4" />
-                              Correo Electrónico *
-                            </div>
-                          </Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="juan.perez@example.com"
-                            value={formData.email}
-                            onChange={(e) => handleChange("email", e.target.value)}
-                            disabled={!isEditing}
-                            required
-                          />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="dni">DNI</Label>
+                            <Input
+                              id="dni"
+                              placeholder="12345678"
+                              value={formData.dni || ""}
+                              onChange={(e) => handleChange("dni", e.target.value)}
+                              disabled={true} // DNI no se puede editar normalmente
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="email">
+                              <div className="flex items-center gap-2">
+                                <IconMail className="h-4 w-4" />
+                                Correo Electrónico *
+                              </div>
+                            </Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="juan.perez@example.com"
+                              value={formData.email}
+                              onChange={(e) => handleChange("email", e.target.value)}
+                              disabled={!isEditing}
+                              required
+                            />
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -421,10 +483,10 @@ export default function AccountProfile() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="city">Ciudad</Label>
+                            <Label htmlFor="city">Ciudad/Región</Label>
                             <Input
                               id="city"
-                              placeholder="Lima"
+                              placeholder="Arequipa"
                               value={formData.city}
                               onChange={(e) => handleChange("city", e.target.value)}
                               disabled={!isEditing}

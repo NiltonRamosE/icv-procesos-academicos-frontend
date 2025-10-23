@@ -5,13 +5,22 @@
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
 export const config = {
-  //apiUrl:"https://icv-procesos-academicos-847846098195.us-central1.run.app",
+  //apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
   apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
+
+    users: {
+      getById: "/api/users/:id",
+      update: "/api/users/:id"
+    },
+
     auth: {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
+      register: "/api/auth/register",
+      redirect: "/auth/google/redirect",
+      callback: "/auth/google/callback",
     },
       
     groups: {
@@ -27,6 +36,7 @@ export const config = {
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
       join: "/api/groups/:id/join",
+      getGroupsCompleted: "/api/groups/completed/:userId"
     },
     
     courses: {
@@ -53,11 +63,26 @@ export const config = {
     },
 
     materials: {
-      list: "/api/classes/:classId/materials",
-      create: "/api/classes/:classId/materials",
-      update: "/api/classes/:classId/materials/:materialId",
-      delete: "/api/classes/:classId/materials/:materialId",
-      toggleVisibility: "/api/classes/:classId/materials/:materialId/visibility",
-    }
+      list: "/api/class-materials",
+      create: "/api/class-materials",
+      update: "/api/class-materials/:materialId",
+      delete: "/api/class-materials/:materialId",
+      getByClass: "/api/classes/:classId/materials",
+    },
+
+    attendance: {
+      getByGroup: "/api/attendance/group/:groupId",
+      getByStudent: "/api/attendance/student/:studentId",
+      markAttendance: "/api/attendance/mark",
+      getStatistics: "/api/attendance/statistics/:groupId",
+      getByClass: "/api/attendance/class/:classId",
+    },
+
+    certificates: {
+      generate: "/api/credentials/:credentialId/pdf",
+      download: "/api/certificates/download/:certificateId",
+      verify: "/api/certificates/verify/:code",
+    },
+
   },
 };
