@@ -70,5 +70,12 @@ export const config = {
       getStatistics: "/api/attendance/statistics/:groupId",
       getByClass: "/api/attendance/class/:classId",
     },
+
+    certificates: {
+      generate: "/api/credentials/:credentialId/pdf",
+      download: "/api/certificates/download/:certificateId",
+      verify: "/api/certificates/verify/:code",
+    },
+
   },
 };
