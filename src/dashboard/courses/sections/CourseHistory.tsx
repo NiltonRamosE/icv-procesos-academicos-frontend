@@ -4,11 +4,19 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { toast } from "sonner";
+import { config } from "config";
 
 export default function CourseHistory() {
   const [completedGroups, setCompletedGroups] = useState<any[]>([]);
+  const [downloadingCertificate, setDownloadingCertificate] = useState<number | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
+    // Obtener token del localStorage
+    const t = window.localStorage.getItem("token");
+    setToken(t ?? null);
+    
     // Aquí harías el fetch a tu API
     // fetch(`/api/groups?user_id=${user?.id}&status=completed`)
     setCompletedGroups([
@@ -17,37 +25,89 @@ export default function CourseHistory() {
         name: "Grupo A - Mañana",
         course: {
           name: "Desarrollo Web Fullstack",
-          image: "/academico/images/default-group-01.webp"
+          image: "/images/default-group-01.webp"
         },
         teacher: {
           name: "Juan Pérez",
-          photo: "/academico/images/9439727.webp"
+          photo: "/images/9439727.webp"
         },
         start_date: "2023-07-15",
         end_date: "2023-12-15",
-        progress: 100
+        progress: 100,
+        credential_id: 1 // ← ID de la credencial/certificado
       },
       {
         id: 2,
         name: "Grupo B - Tarde",
         course: {
           name: "Python Avanzado",
-          image: "/academico/images/default-group-02.webp"
+          image: "/images/default-group-02.webp"
         },
         teacher: {
           name: "María González",
-          photo: "/academico/images/9439729.webp"
+          photo: "/images/9439729.webp"
         },
         start_date: "2023-06-01",
         end_date: "2023-11-30",
-        progress: 100
+        progress: 100,
+        credential_id: 2 // ← ID de la credencial/certificado
       }
     ]);
   }, []);
 
-  const handleDownloadCertificate = (groupId: number) => {
-    console.log("Descargando certificado del grupo:", groupId);
-    // window.open(`/api/certificates/download/${groupId}`, '_blank');
+  const handleDownloadCertificate = async (groupId: number, credentialId?: number) => {
+    if (!credentialId) {
+      toast.error('Este curso no tiene un certificado disponible.');
+      return;
+    }
+    
+    setDownloadingCertificate(groupId);
+    
+    try {
+      const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
+      
+      // Construir la URL del endpoint
+      const endpoint = config.endpoints.certificates.generate.replace(':credentialId', String(credentialId));
+      const url = `${config.apiUrl}${endpoint}`;
+      
+      console.log('Descargando certificado desde:', url);
+      
+      // Llamada al endpoint de Laravel
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenWithoutQuotes}`,
+          'Accept': 'application/pdf', // Importante para recibir PDF
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al generar el certificado');
+      }
+
+      // Convertir la respuesta a blob (archivo)
+      const blob = await response.blob();
+      
+      // Crear un enlace temporal para descargar el archivo
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `certificado-credencial-${credentialId}.pdf`; // Nombre del archivo
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiar
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      toast.success('¡Certificado descargado exitosamente!');
+    } catch (error) {
+      console.error('Error descargando certificado:', error);
+      toast.error(error instanceof Error ? error.message : 'Error al descargar el certificado. Por favor, intenta nuevamente.');
+    } finally {
+      setDownloadingCertificate(null);
+    }
   };
 
   return (
