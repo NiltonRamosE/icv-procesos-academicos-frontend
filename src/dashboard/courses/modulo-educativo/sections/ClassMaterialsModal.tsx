@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import CloudinaryUploader from "@/services/CloudinaryUploader"
+import DriveUploader from "@/services/DriveUploader";
+
 import { 
   Select, 
   SelectContent, 
@@ -365,22 +367,51 @@ export default function ClassMaterialsModal({
                         <SelectItem value="XLSX">XLSX (Excel)</SelectItem>
                         <SelectItem value="VIDEO">Video</SelectItem>
                         <SelectItem value="IMAGEN">Imagen</SelectItem>
-                        <SelectItem value="AUDIO">Audio</SelectItem>
                         <SelectItem value="ENLACE">Enlace Web</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="material_url">URL del Material *</Label>
-                    <CloudinaryUploader
-                      onUpload={(url) => setFormData((prev) => ({ ...prev, material_url: url }))}
-                      label="Cargar Material (PDF, DOCX, Video, etc.)"
-                      acceptType="both"
-                    />
+                    <Label htmlFor="material_url">Archivo o Enlace del Material *</Label>
+
+                    {formData.type.toUpperCase() === "ENLACE" ? (
+                      <Input
+                        id="material_url"
+                        type="url"
+                        placeholder="https://ejemplo.com/recurso"
+                        value={formData.material_url}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, material_url: e.target.value }))
+                        }
+                      />
+                    ) : ["VIDEO", "IMAGEN"].includes(formData.type.toUpperCase()) ? (
+                      <CloudinaryUploader
+                        onUpload={(url) =>
+                          setFormData((prev) => ({ ...prev, material_url: url }))
+                        }
+                        label={`Subir ${formData.type}`}
+                        acceptType={
+                          formData.type.toUpperCase() === "IMAGEN"
+                            ? "image"
+                            : formData.type.toUpperCase() === "VIDEO"
+                            ? "video"
+                            : "both"
+                        }
+                      />
+                    ) : (
+                      <DriveUploader
+                        onUpload={(url) =>
+                          setFormData((prev) => ({ ...prev, material_url: url }))
+                        }
+                        label={`Subir ${formData.type}`}
+                      />
+                    )}
 
                     <p className="text-xs text-muted-foreground">
-                      Proporciona la URL donde está alojado el archivo (Google Drive, Dropbox, YouTube, etc.)
+                      {formData.type.toUpperCase() === "ENLACE"
+                        ? "Introduce una URL válida de una página o recurso en línea."
+                        : "Los videos e imágenes se almacenan en Cloudinary. Los documentos se suben automáticamente a tu Google Drive."}
                     </p>
                   </div>
 
