@@ -17,13 +17,29 @@ export default function DashboardICV() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const t = window.localStorage.getItem("token");
-    const u = window.localStorage.getItem("user");
-    console.log(t);
-    setToken(t ?? null);
-    try { setUser(u ? JSON.parse(u) : null); } catch { setUser(null); }
-    setMounted(true);
-  }, []);
+    // Leer cookie con JSON del login de Google
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+      return match ? decodeURIComponent(match[2]) : null
+    }
+
+    const authDataStr = getCookie('auth_data')
+    console.log("authDataStr", authDataStr)
+    if (authDataStr) {
+      const authData = JSON.parse(authDataStr)
+      console.log("authData", authData)
+      localStorage.setItem('token', JSON.stringify(authData.token))
+      localStorage.setItem('user', JSON.stringify(authData.user))
+      document.cookie = "auth_data=; path=/; max-age=0"
+    }
+
+    const t = window.localStorage.getItem("token")
+    const u = window.localStorage.getItem("user")
+    setToken(t ?? null)
+    try { setUser(u ? JSON.parse(u) : null) } catch { setUser(null) }
+    setMounted(true)
+  }, [])
+
 
   if (!mounted) return null;
 
