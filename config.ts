@@ -5,13 +5,22 @@
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
 export const config = {
-  //apiUrl:"https://icv-procesos-academicos-847846098195.us-central1.run.app",
+  //apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
   apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
+
+    users: {
+      getById: "/api/users/:id",
+      update: "/api/users/:id"
+    },
+
     auth: {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
+      register: "/api/auth/register",
+      redirect: "/auth/google/redirect",
+      callback: "/auth/google/callback",
     },
 
     dashboard: {
@@ -34,6 +43,7 @@ export const config = {
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
       join: "/api/groups/:id/join",
+      getGroupsCompleted: "/api/groups/completed/:userId"
     },
     
     courses: {
@@ -43,12 +53,43 @@ export const config = {
       create: "/api/courses",
     },
 
-    educationalMaterials: {
-      getByGroup: "/api/groups/:groupId/materials",
-      create: "/api/groups/:groupId/materials",
-      update: "/api/groups/:groupId/materials/:materialId",
-      delete: "/api/groups/:groupId/materials/:materialId",
-      toggleVisibility: "/api/groups/:groupId/materials/:materialId/visibility",
+    graduates: {
+      getSurveys: "/api/graduates/surveys",
+      submitSurvey: "/api/graduates/surveys",
+      getProfile: "/api/graduates/profile",
+      updateProfile: "/api/graduates/profile",
+      getStatistics: "/api/graduates/statistics",
+      getEmploymentData: "/api/graduates/employment",
     },
+
+    classes: {
+      getByGroup: "/api/classes/group/:groupId",
+      create: "/api/classes",
+      update: "/api/classes/:class",
+      delete: "/api/classes/:class",
+    },
+
+    materials: {
+      list: "/api/class-materials",
+      create: "/api/class-materials",
+      update: "/api/class-materials/:materialId",
+      delete: "/api/class-materials/:materialId",
+      getByClass: "/api/classes/:classId/materials",
+    },
+
+    attendance: {
+      getByGroup: "/api/attendance/group/:groupId",
+      getByStudent: "/api/attendance/student/:studentId",
+      markAttendance: "/api/attendance/mark",
+      getStatistics: "/api/attendance/statistics/:groupId",
+      getByClass: "/api/attendance/class/:classId",
+    },
+
+    certificates: {
+      generate: "/api/credentials/:credentialId/pdf",
+      download: "/api/certificates/download/:certificateId",
+      verify: "/api/certificates/verify/:code",
+    },
+
   },
 };

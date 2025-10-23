@@ -1,6 +1,8 @@
 import {
   BookOpen,
   Bot,
+  GraduationCap,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react"
 import {
@@ -49,6 +51,9 @@ export const siteConfig = {
 
 const urlManagementGroup = "/academico/dashboard/gestion-grupos";
 const urlCourses = "/academico/dashboard/cursos";
+const urlGraduates = "/academico/dashboard/graduates";
+const urlAttendance = "/academico/dashboard/asistencia";
+
 
 export const navMainCollapse: NavItem[] = [
   {
@@ -75,23 +80,53 @@ export const navMainCollapse: NavItem[] = [
       }
     ],
   },
+  {
+    title: "Seguimiento Egresados",
+    url: urlGraduates,
+    icon: GraduationCap,
+    items: [
+      {
+        title: "Encuestas",
+        url: `${urlGraduates}#encuestas`,
+      },
+      {
+        title: "Perfil Laboral",
+        url: `${urlGraduates}#perfil-laboral`,
+      },
+      {
+        title: "Estadísticas",
+        url: `${urlGraduates}#estadisticas`,
+      },
+    ],
+  },
+
+  {
+    title: "Asistencia",
+    url: urlAttendance,
+    icon: ClipboardCheck,
+    items: [
+      {
+        title: "Registro de Asistencia",
+        url: `${urlAttendance}#registro-asistencia`,
+      },
+      {
+        title: "Estadísticas",
+        url: `${urlAttendance}#estadisticas-asistencia`,
+      },
+    ],
+  },
 ];
 
 export const navSimpleMain: NavSimpleItem[] = [
-  {
+  /* {
     title: "Gestión de Grupos",
     url: `${urlManagementGroup}`,
     icon: IconSettings,
-  },
+  }, */
   {
     title: "Catálogo de Cursos",
     url: "/academico/dashboard/catalogo",
     icon: IconDatabase,
-  },
-  {
-    title: "Seguimiento del egresado",
-    url: "/academico/dashboard/graduates",
-    icon: IconReport,
   },
 ];
 

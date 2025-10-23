@@ -182,7 +182,7 @@ export default function GruposDisponiblesContent({ token }: GruposDisponiblesCon
 
   const handleGroupClick = (groupId: number) => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/academico/dashboard/informacion-grupos?groupId=${groupId}`;
+      window.location.href = `/academico/dashboard/informacion-grupos?groupId=${groupId}&courseId=${courseId}`;
     }
   };
 

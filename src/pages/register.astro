@@ -1,0 +1,15 @@
+---
+import ProtectedLayout from '@/layouts/ProtectedLayout.astro';
+import { RegisterPage } from '@/auth/Register.tsx';
+const robots = ["index", "follow"];
+const title = "Incadev - Registrate";
+const description = "Incadev es un instituto que ofrece servicios de capacitación y desarrollo virtual para estudiantes y profesionales.";
+const keywords = ["Incadev", "Instituto de Capacitación y Desarrollo Virtual", "Capacitación", "Desarrollo Virtual", "Estudiantes", "Profesionales"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/register";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
+---
+
+<ProtectedLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<RegisterPage client:load/>
+</ProtectedLayout>

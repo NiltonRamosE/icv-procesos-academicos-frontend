@@ -8,7 +8,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { config } from "../../config"
+import { config } from "config"
 
 export default function DashboardICV() {
   const [token, setToken] = useState<string | null>(null);
@@ -21,13 +21,28 @@ export default function DashboardICV() {
   useEffect(() => {
     console.group('🔄 DASHBOARD: Inicialización');
     
+    // Leer cookie con JSON del login de Google
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+      return match ? decodeURIComponent(match[2]) : null
+    }
+
+    const authDataStr = getCookie('auth_data')
+    console.log("authDataStr", authDataStr)
+    if (authDataStr) {
+      const authData = JSON.parse(authDataStr)
+      console.log("authData", authData)
+      localStorage.setItem('token', JSON.stringify(authData.token))
+      localStorage.setItem('user', JSON.stringify(authData.user))
+      document.cookie = "auth_data=; path=/; max-age=0"
+    }
     const t = window.localStorage.getItem("token");
     const u = window.localStorage.getItem("user");
     
     console.log('🔑 Token from localStorage:', t ? `${t.substring(0, 30)}...` : 'NO TOKEN');
     console.log('👤 User from localStorage (raw):', u);
     
-    setToken(t ?? null);
+    setToken(t ?? null)
     
     try { 
       const userData = u ? JSON.parse(u) : null;
@@ -53,9 +68,9 @@ export default function DashboardICV() {
       setLoading(false);
     }
     
-    console.groupEnd();
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
+
 
   const fetchDashboardData = async (role: string, token: string) => {
     console.group('📡 DASHBOARD: Fetch Data');
