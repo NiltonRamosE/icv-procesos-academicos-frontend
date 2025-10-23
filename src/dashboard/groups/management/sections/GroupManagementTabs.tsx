@@ -19,7 +19,7 @@ import { config } from "config.ts";
 
 import AnnouncementsTab from "@/dashboard/groups/management/sections/tabs/AnnouncementsTab";
 import EvaluationsTab from "@/dashboard/groups/management/sections/tabs/EvaluationsTab";
-//import GradesTab from "@/dashboard/groups/management/sections/tabs/GradesTab";
+import GradesTab from "@/dashboard/groups/management/sections/tabs/GradesTab";
 import ParticipantsTab from "@/dashboard/groups/management/sections/tabs/ParticipantsTab";
 import ClassesTab from "@/dashboard/groups/management/sections/tabs/ClassesTab";
 
@@ -163,7 +163,7 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
           />
         </TabsContent>
 
-        {/* <TabsContent value="calificaciones" className="mt-6">
+        <TabsContent value="calificaciones" className="mt-6">
           <GradesTab 
             groupId={groupId} 
             token={token} 
@@ -171,7 +171,6 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
             userId={user?.id}
           />
         </TabsContent>
-        */}
 
         <TabsContent value="participantes" className="mt-6">
           <ParticipantsTab 
