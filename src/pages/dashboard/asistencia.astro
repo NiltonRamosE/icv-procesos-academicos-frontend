@@ -1,0 +1,15 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import AttendanceModule from '@/dashboard/attendance/AttendanceModule';
+const robots = ["index", "follow"];
+const title = "Seguimiento de Asistencia";
+const description = "Gestiona y visualiza la asistencia de estudiantes a las clases.";
+const keywords = ["Asistencia", "Clases", "Estudiantes", "Docentes", "Instituto de Capacitación"];
+const url = "https://icv-procesos-academicos-frontend.vercel.app/academico/dashboard/asistencia";
+const imageOG = "/incadev_isologotipo.webp";
+const imagetwt = "/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<AttendanceModule client:load/>
+</DashboardLayout>
