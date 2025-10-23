@@ -30,6 +30,7 @@ export const config = {
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
       join: "/api/groups/:id/join",
+      getGroupsCompleted: "/api/groups/completed/:userId"
     },
     
     courses: {
