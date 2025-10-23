@@ -61,6 +61,14 @@ export const config = {
       update: "/api/class-materials/:materialId",
       delete: "/api/class-materials/:materialId",
       getByClass: "/api/classes/:classId/materials",
-    }
+    },
+
+    attendance: {
+      getByGroup: "/api/attendance/group/:groupId",
+      getByStudent: "/api/attendance/student/:studentId",
+      markAttendance: "/api/attendance/mark",
+      getStatistics: "/api/attendance/statistics/:groupId",
+      getByClass: "/api/attendance/class/:classId",
+    },
   },
 };
