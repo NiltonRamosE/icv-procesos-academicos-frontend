@@ -9,50 +9,61 @@ import { config } from "config";
 
 export default function CourseHistory() {
   const [completedGroups, setCompletedGroups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [downloadingCertificate, setDownloadingCertificate] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    // Obtener token del localStorage
-    const t = window.localStorage.getItem("token");
-    setToken(t ?? null);
-    
-    // Aquí harías el fetch a tu API
-    // fetch(`/api/groups?user_id=${user?.id}&status=completed`)
-    setCompletedGroups([
-      {
-        id: 1,
-        name: "Grupo A - Mañana",
-        course: {
-          name: "Desarrollo Web Fullstack",
-          image: "/images/default-group-01.webp"
-        },
-        teacher: {
-          name: "Juan Pérez",
-          photo: "/images/9439727.webp"
-        },
-        start_date: "2023-07-15",
-        end_date: "2023-12-15",
-        progress: 100,
-        credential_id: 1 // ← ID de la credencial/certificado
-      },
-      {
-        id: 2,
-        name: "Grupo B - Tarde",
-        course: {
-          name: "Python Avanzado",
-          image: "/images/default-group-02.webp"
-        },
-        teacher: {
-          name: "María González",
-          photo: "/images/9439729.webp"
-        },
-        start_date: "2023-06-01",
-        end_date: "2023-11-30",
-        progress: 100,
-        credential_id: 2 // ← ID de la credencial/certificado
+    const fetchCompletedGroups = async () => {
+      try {
+        setLoading(true);
+        const t = window.localStorage.getItem("token");
+        setToken(t ?? null);
+
+        const userData = window.localStorage.getItem("user");
+        const userId = userData ? JSON.parse(userData).id : null;
+
+        if (!userId) {
+          toast.error("No se pudo identificar al usuario");
+          return;
+        }
+
+        // Construir la URL del endpoint
+        const endpoint = config.endpoints.groups.getGroupsCompleted.replace(':userId', String(userId));
+        const url = `${config.apiUrl}${endpoint}`;
+
+        const tokenWithoutQuotes = t?.replace(/^"|"$/g, '');
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${tokenWithoutQuotes}`,
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al obtener los grupos completados');
+        }
+
+        const data = await response.json();
+        
+        if (data.groups && Array.isArray(data.groups)) {
+          setCompletedGroups(data.groups);
+        } else {
+          setCompletedGroups([]);
+        }
+
+      } catch (error) {
+        console.error('Error fetching completed groups:', error);
+        toast.error('Error al cargar los cursos completados');
+        setCompletedGroups([]);
+      } finally {
+        setLoading(false);
       }
-    ]);
+    };
+
+    fetchCompletedGroups();
   }, []);
 
   const handleDownloadCertificate = async (groupId: number, credentialId?: number) => {
@@ -77,7 +88,7 @@ export default function CourseHistory() {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${tokenWithoutQuotes}`,
-          'Accept': 'application/pdf', // Importante para recibir PDF
+          'Accept': 'application/pdf',
         }
       });
 
@@ -93,7 +104,7 @@ export default function CourseHistory() {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `certificado-credencial-${credentialId}.pdf`; // Nombre del archivo
+      link.download = `certificado-${groupId}.pdf`;
       document.body.appendChild(link);
       link.click();
       
@@ -110,6 +121,26 @@ export default function CourseHistory() {
     }
   };
 
+  // Función para obtener el profesor del grupo
+  const getTeacher = (participants: any[]) => {
+    return participants.find(participant => participant.role === 'teacher')?.user || null;
+  };
+
+  // Función para obtener imagen por defecto si no hay course_image
+  const getCourseImage = (course: any) => {
+    return course.course_image || "/academico/images/default-group-01.webp";
+  };
+
+  if (loading) {
+    return (
+      <section className="px-4 md:px-6 lg:px-10">
+        <p className="text-center text-muted-foreground py-12">
+          Cargando cursos completados...
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section className="px-4 md:px-6 lg:px-10">
       {completedGroups.length === 0 ? (
@@ -118,52 +149,62 @@ export default function CourseHistory() {
         </p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {completedGroups.map((group) => (
-            <Card 
-              key={group.id} 
-              className="overflow-hidden transition-all hover:shadow-lg flex flex-col"
-            >
-              <div className="aspect-video overflow-hidden cursor-pointer">
-                <img
-                  src={group.course.image}
-                  alt={group.course.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform"
-                  onClick={() => window.location.href = `/academico/groups/${group.id}`}
-                />
-              </div>
-              <CardHeader className="pb-3">
-                <h3 className="font-semibold text-lg">{group.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {group.course.name}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4 flex-1">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={group.teacher.photo} />
-                    <AvatarFallback>
-                      {group.teacher.name.split(' ').map((n: string) => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="text-sm font-medium">{group.teacher.name}</p>
+          {completedGroups.map((group) => {
+            const teacher = getTeacher(group.participants);
+            const courseImage = getCourseImage(group.course);
+            
+            return (
+              <Card 
+                key={group.id} 
+                className="overflow-hidden transition-all hover:shadow-lg flex flex-col"
+              >
+                <div className="aspect-video overflow-hidden cursor-pointer">
+                  <img
+                    src={courseImage}
+                    alt={group.course.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    onClick={() => window.location.href = `/academico/groups/${group.id}`}
+                  />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Completado</span>
-                    <span className="text-green-600 font-medium">100%</span>
+                <CardHeader className="pb-3">
+                  <h3 className="font-semibold text-lg">{group.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {group.course.name}
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1">
+                  {teacher && (
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={teacher.profile_photo} />
+                        <AvatarFallback>
+                          {teacher.full_name?.split(' ').map((n: string) => n[0]).join('') || 'T'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-sm font-medium">{teacher.full_name}</p>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Completado</span>
+                      <span className="text-green-600 font-medium">100%</span>
+                    </div>
+                    <Progress value={100} />
                   </div>
-                  <Progress value={100} />
-                </div>
-              </CardContent>
-              {group.progress === 100 && (
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>Inicio: {new Date(group.start_date).toLocaleDateString()}</p>
+                    <p>Fin: {new Date(group.end_date).toLocaleDateString()}</p>
+                  </div>
+                </CardContent>
                 <CardFooter className="gap-2">
                   <Button 
                     variant="outline" 
                     className="flex-1 gap-2"
-                    onClick={() => handleDownloadCertificate(group.id)}
+                    onClick={() => handleDownloadCertificate(group.id, group.credential_id)}
+                    disabled={downloadingCertificate === group.id}
                   >
                     <Download className="h-4 w-4" />
-                    Certificado
+                    {downloadingCertificate === group.id ? 'Descargando...' : 'Certificado'}
                   </Button>
                   <Button 
                     className="flex-1"
@@ -172,9 +213,9 @@ export default function CourseHistory() {
                     Ver Detalles
                   </Button>
                 </CardFooter>
-              )}
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
     </section>

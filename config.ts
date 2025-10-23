@@ -9,6 +9,12 @@ export const config = {
   apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
+
+    users: {
+      getById: "/api/users/:id",
+      update: "/api/users/:id"
+    },
+
     auth: {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
@@ -30,6 +36,7 @@ export const config = {
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
       join: "/api/groups/:id/join",
+      getGroupsCompleted: "/api/groups/completed/:userId"
     },
     
     courses: {
