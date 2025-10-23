@@ -118,11 +118,11 @@ export const navMainCollapse: NavItem[] = [
 ];
 
 export const navSimpleMain: NavSimpleItem[] = [
-  {
+  /* {
     title: "Gestión de Grupos",
     url: `${urlManagementGroup}`,
     icon: IconSettings,
-  },
+  }, */
   {
     title: "Catálogo de Cursos",
     url: "/academico/dashboard/catalogo",

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sidebar"
 
 // Importar el nuevo componente de las pestañas
-import GroupManagementTabs from "@/dashboard/components/GroupManagementTabs";
+import GroupManagementTabs from "@/dashboard/groups/management/sections/GroupManagementTabs";
 
 export default function ManagementGroup() {
   const [token, setToken] = useState<string | null>(null);
