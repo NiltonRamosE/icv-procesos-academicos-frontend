@@ -11,7 +11,7 @@ interface GoogleLoginButtonProps {
 export function GoogleLoginButton({ text = "Iniciar con Google" }: GoogleLoginButtonProps) {
   const handleGoogleLogin = async () => {
     try {
-      const response = await fetch(`${config.apiUrl}${config.endpoints.auth.redirect}`)
+      const response = await fetch(`${config.apiUrl}${config.endpoints.auth.redirect}?redirect=/academico/dashboard`)
 
       if (!response.ok) {
         const err = await response.json()
@@ -19,7 +19,7 @@ export function GoogleLoginButton({ text = "Iniciar con Google" }: GoogleLoginBu
       }
 
       const data = await response.json()
-
+      console.log("Login response:", data);
       if (data.redirect_url) {
         toast.info("Redirigiendo a Google...")
         window.location.href = data.redirect_url
