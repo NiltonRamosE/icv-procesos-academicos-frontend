@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import CloudinaryUploader from "@/services/CloudinaryUploader"
 import { 
   Select, 
   SelectContent, 
@@ -372,15 +373,12 @@ export default function ClassMaterialsModal({
 
                   <div className="space-y-2">
                     <Label htmlFor="material_url">URL del Material *</Label>
-                    <Input 
-                      id="material_url"
-                      name="material_url"
-                      type="url"
-                      placeholder="https://ejemplo.com/archivo.pdf"
-                      value={formData.material_url}
-                      onChange={handleInputChange}
-                      required
+                    <CloudinaryUploader
+                      onUpload={(url) => setFormData((prev) => ({ ...prev, material_url: url }))}
+                      label="Cargar Material (PDF, DOCX, Video, etc.)"
+                      acceptType="both"
                     />
+
                     <p className="text-xs text-muted-foreground">
                       Proporciona la URL donde está alojado el archivo (Google Drive, Dropbox, YouTube, etc.)
                     </p>
