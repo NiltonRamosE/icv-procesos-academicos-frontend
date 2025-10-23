@@ -56,11 +56,11 @@ export const config = {
     },
 
     materials: {
-      list: "/api/classes/:classId/materials",
-      create: "/api/classes/:classId/materials",
-      update: "/api/classes/:classId/materials/:materialId",
-      delete: "/api/classes/:classId/materials/:materialId",
-      toggleVisibility: "/api/classes/:classId/materials/:materialId/visibility",
+      list: "/api/class-materials",
+      create: "/api/class-materials",
+      update: "/api/class-materials/:materialId",
+      delete: "/api/class-materials/:materialId",
+      getByClass: "/api/classes/:classId/materials",
     }
   },
 };
