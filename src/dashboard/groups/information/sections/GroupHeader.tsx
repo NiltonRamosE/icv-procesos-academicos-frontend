@@ -104,7 +104,10 @@ export default function GroupHeader({ group, user, token, onBack, onRefresh }: G
           >
             <Edit className="w-5 h-5 text-[#848282] hover:text-blue-400 transition-colors" />
           </button>
-          <button className="p-2 hover:bg-[#201a2f] rounded-lg transition-colors border border-[#848282]/20">
+          <button 
+            onClick={() => window.location.href = `/academico/dashboard/gestion-grupos?groupId=${group.id}`}
+            className="p-2 hover:bg-[#201a2f] rounded-lg transition-colors border border-[#848282]/20"
+          >
             <MoreVertical className="w-5 h-5 text-[#848282]" />
           </button>
         </div>
