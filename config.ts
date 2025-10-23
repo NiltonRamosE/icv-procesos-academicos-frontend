@@ -13,7 +13,14 @@ export const config = {
       login: "/api/auth/login",
       logout: "/api/auth/logout",
     },
-      
+
+    dashboard: {
+      admin: "/api/admin/dashboard",      // 👈 NUEVO
+      teacher: "/api/teacher/dashboard",  // 👈 NUEVO
+      student: "/api/student/dashboard",  // 👈 NUEVO
+      getData: "/api/dashboard",          // 👈 Mantener por compatibilidad
+    },
+
     groups: {
       getById: "/api/groups/:id",
       getAnnouncements: "/api/groups/:id/announcements",
@@ -35,16 +42,6 @@ export const config = {
       getGroups: "/api/courses/:id/groups",
       create: "/api/courses",
     },
-
-    graduates: {
-      getSurveys: "/api/graduates/surveys",
-      submitSurvey: "/api/graduates/surveys",
-      getProfile: "/api/graduates/profile",
-      updateProfile: "/api/graduates/profile",
-      getStatistics: "/api/graduates/statistics",
-      getEmploymentData: "/api/graduates/employment",
-    },
-
 
     educationalMaterials: {
       getByGroup: "/api/groups/:groupId/materials",
