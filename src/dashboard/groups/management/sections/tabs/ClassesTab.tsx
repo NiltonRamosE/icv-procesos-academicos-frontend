@@ -81,11 +81,6 @@ export default function ClassesTab({ groupId, token, isTeacher }: ClassesTabProp
     }
   };
 
-  const handleCreateClass = () => {
-    // TODO: Implementar modal de creación de clase
-    console.log("Crear nueva clase");
-  };
-
   // Función para formatear fecha y hora
   const formatDateTime = (dateString: string, timeString: string) => {
     try {
@@ -198,12 +193,6 @@ export default function ClassesTab({ groupId, token, isTeacher }: ClassesTabProp
             {sortedClasses.length} {sortedClasses.length === 1 ? 'clase' : 'clases'} en total
           </p>
         </div>
-        {isTeacher && (
-          <Button onClick={handleCreateClass} className="flex items-center gap-2">
-            <IconPlus className="h-4 w-4" />
-            Programar Clase
-          </Button>
-        )}
       </div>
 
       {/* Lista de Clases */}
@@ -220,12 +209,6 @@ export default function ClassesTab({ groupId, token, isTeacher }: ClassesTabProp
                 }
               </p>
             </div>
-            {isTeacher && (
-              <Button onClick={handleCreateClass} className="mt-4">
-                <IconPlus className="h-4 w-4 mr-2" />
-                Crear Primera Clase
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (
@@ -255,7 +238,7 @@ export default function ClassesTab({ groupId, token, isTeacher }: ClassesTabProp
                       )}
                     </div>
                     
-                    {isTeacher && (
+                {/* {isTeacher && (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">
                           <IconEdit className="h-4 w-4" />
@@ -264,7 +247,7 @@ export default function ClassesTab({ groupId, token, isTeacher }: ClassesTabProp
                           <IconTrash className="h-4 w-4" />
                         </Button>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </CardHeader>
 

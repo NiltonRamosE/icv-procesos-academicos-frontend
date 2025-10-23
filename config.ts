@@ -84,5 +84,9 @@ export const config = {
       verify: "/api/certificates/verify/:code",
     },
 
+    evaluations: {
+      getByGroup: "/api/evaluations/group/:groupId",
+      create: "/api/evaluations",
+    }
   },
 };

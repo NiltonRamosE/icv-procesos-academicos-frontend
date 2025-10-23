@@ -147,19 +147,20 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
         </TabsList>
 
         {/* Tabs Content */}
-        <TabsContent value="anuncios" className="mt-6">
+        {/* <TabsContent value="anuncios" className="mt-6">
           <AnnouncementsTab 
             groupId={groupId} 
             token={token} 
             isTeacher={isTeacher} 
           />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="evaluaciones" className="mt-6">
           <EvaluationsTab 
-            groupId={groupId} 
-            token={token} 
-            isTeacher={isTeacher} 
+            groupId={groupId}
+            token={token}
+            isTeacher={isTeacher}
+            teacherId={user.id} // ← Agregar esta prop
           />
         </TabsContent>
 
