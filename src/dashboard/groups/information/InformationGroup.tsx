@@ -10,6 +10,7 @@ import ParticipantsList from "@/dashboard/groups/information/sections/Participan
 import ClassesList from "@/dashboard/groups/information/sections/ClassesList";
 import RecommendedCourses from "@/dashboard/groups/information/sections/RecommendedCourses";
 import { type Group, type Participant, type Class } from "@/dashboard/groups/information/types";
+import { description } from "@/dashboard/components/chart-area-interactive";
 
 export default function InformationGroup() {
   const [token, setToken] = useState<string | null>(null);
@@ -61,7 +62,7 @@ export default function InformationGroup() {
 
       const responseData = await response.json();
       const groupData = responseData.group || responseData;
-
+      console.log("groupData: ", groupData)
       // Procesar participantes
       const participants: Participant[] = [];
 
@@ -87,13 +88,15 @@ export default function InformationGroup() {
           });
         });
       }
-
+      console.log("clases: ",groupData.classes);
       const classes: Class[] = (groupData.classes || []).map((cls: any) => ({
         id: cls.id,
         class_name: cls.class_name,
         class_date: cls.class_date,
         start_time: cls.start_time,
         end_time: cls.end_time,
+        description: cls.description,
+        class_status: cls.class_status,
       }));
 
       const processedGroup: Group = {
