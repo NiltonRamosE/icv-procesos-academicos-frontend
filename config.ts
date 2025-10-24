@@ -4,6 +4,7 @@
  * para esto, se ha creado un objeto config que contiene la url de la api y los endpoints.
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
+
 export const config = {
   apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
   //apiUrl:"http://127.0.0.1:8000",
@@ -47,12 +48,24 @@ export const config = {
     },
 
     graduates: {
-      getSurveys: "/api/graduates/surveys",
-      submitSurvey: "/api/graduates/surveys",
-      getProfile: "/api/graduates/profile",
-      updateProfile: "/api/graduates/profile",
-      getStatistics: "/api/graduates/statistics",
-      getEmploymentData: "/api/graduates/employment",
+      // Employment Profile
+      getProfile: "/api/employment-profile",
+      updateProfile: "/api/employment-profile",
+      deleteProfile: "/api/employment-profile",
+      
+      // Surveys
+      getSurveys: "/api/surveys",
+      getSurveyById: "/api/surveys/:id",
+      submitSurvey: "/api/surveys/:id/response",
+      
+      // Admin: Survey Management
+      createSurvey: "/api/surveys",
+      updateSurvey: "/api/surveys/:id",
+      deleteSurvey: "/api/surveys/:id",
+      
+      // Admin: Statistics
+      getStatistics: "/api/graduate-statistics",
+      exportReport: "/api/graduate-statistics/export",
     },
 
     classes: {
