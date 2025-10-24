@@ -17,10 +17,9 @@ import {
 
 import { config } from "config.ts";
 
-// Importar los componentes de cada tab
 import AnnouncementsTab from "@/dashboard/groups/management/sections/tabs/AnnouncementsTab";
 import EvaluationsTab from "@/dashboard/groups/management/sections/tabs/EvaluationsTab";
-//import GradesTab from "@/dashboard/groups/management/sections/tabs/GradesTab";
+import GradesTab from "@/dashboard/groups/management/sections/tabs/GradesTab";
 import ParticipantsTab from "@/dashboard/groups/management/sections/tabs/ParticipantsTab";
 import ClassesTab from "@/dashboard/groups/management/sections/tabs/ClassesTab";
 
@@ -106,7 +105,6 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
 
   return (
     <div className="w-full space-y-6 p-4 md:p-6">
-      {/* Header del Grupo */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">{groupData?.name}</h1>
         <p className="text-muted-foreground text-lg">{groupData?.courseName}</p>
@@ -152,18 +150,20 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
             groupId={groupId} 
             token={token} 
             isTeacher={isTeacher} 
+            teacherId={user.id}
           />
         </TabsContent>
 
         <TabsContent value="evaluaciones" className="mt-6">
           <EvaluationsTab 
-            groupId={groupId} 
-            token={token} 
-            isTeacher={isTeacher} 
+            groupId={groupId}
+            token={token}
+            isTeacher={isTeacher}
+            teacherId={user.id}
           />
         </TabsContent>
 
-        {/* <TabsContent value="calificaciones" className="mt-6">
+        <TabsContent value="calificaciones" className="mt-6">
           <GradesTab 
             groupId={groupId} 
             token={token} 
@@ -171,7 +171,6 @@ export default function GroupManagementTabs({ user, token }: GroupManagementTabs
             userId={user?.id}
           />
         </TabsContent>
-        */}
 
         <TabsContent value="participantes" className="mt-6">
           <ParticipantsTab 

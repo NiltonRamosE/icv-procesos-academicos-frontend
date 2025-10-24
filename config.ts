@@ -84,5 +84,16 @@ export const config = {
       verify: "/api/certificates/verify/:code",
     },
 
+    evaluations: {
+      getByGroup: "/api/evaluations/group/:groupId",
+      create: "/api/evaluations",
+    },
+
+    grades: {
+      getByGroup: "/api/grade-records/group/:groupId",
+      create: "/api/grade-records",
+      update: "/api/grade-records/:gradeRecordId",
+      delete: "/api/grade-records/:gradeRecordId",
+    }
   },
 };
