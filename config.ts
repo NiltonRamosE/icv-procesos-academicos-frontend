@@ -5,9 +5,6 @@
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
 
-// ✅ Detectar si estamos en desarrollo o producción
-const isDevelopment = import.meta.env.DEV;
-
 export const config = {
   apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
   //apiUrl:"http://127.0.0.1:8000",
