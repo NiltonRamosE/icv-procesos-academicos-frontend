@@ -1,0 +1,16 @@
+---
+// src/pages/academico/admin/administradores.astro
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import AdminManagement from '@/admin/components/AdminManagement';
+const robots = ["noindex", "nofollow"];
+const title = "Gestión de Administradores";
+const description = "Gestión de usuarios administradores del sistema";
+const keywords = ["administradores", "gestión", "admin"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/admin/administradores";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+  <AdminManagement client:load />
+</DashboardLayout>

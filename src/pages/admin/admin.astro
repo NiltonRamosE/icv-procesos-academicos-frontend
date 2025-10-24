@@ -1,0 +1,17 @@
+---
+// src/pages/academico/admin/admin.astro
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import AdminDashboard from '@/admin/AdminDashboard';
+
+const robots = ["noindex", "nofollow"];
+const title = "Panel de Administración";
+const description = "Panel de administración del sistema académico";
+const keywords = ["admin", "administración", "gestión"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/admin/admin";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+  <AdminDashboard client:load />
+</DashboardLayout>
