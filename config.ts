@@ -4,10 +4,18 @@
  * para esto, se ha creado un objeto config que contiene la url de la api y los endpoints.
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
+
+// ✅ Detectar si estamos en desarrollo o producción
+const isDevelopment = import.meta.env.DEV;
+
 export const config = {
-  //apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
-  apiUrl:"http://127.0.0.1:8000",
-  environment:"development",
+  // En desarrollo: usa proxy (vacío), en producción: usa la URL completa
+  apiUrl: isDevelopment 
+    ? "" // El proxy de Astro maneja /api automáticamente
+    : "https://instituto.cetivirgendelapuerta.com/academico/backend/public",
+  
+  environment: isDevelopment ? "development" : "production",
+  
   endpoints: {
 
     users: {
@@ -47,12 +55,24 @@ export const config = {
     },
 
     graduates: {
-      getSurveys: "/api/graduates/surveys",
-      submitSurvey: "/api/graduates/surveys",
-      getProfile: "/api/graduates/profile",
-      updateProfile: "/api/graduates/profile",
-      getStatistics: "/api/graduates/statistics",
-      getEmploymentData: "/api/graduates/employment",
+      // Employment Profile
+      getProfile: "/api/employment-profile",
+      updateProfile: "/api/employment-profile",
+      deleteProfile: "/api/employment-profile",
+      
+      // Surveys
+      getSurveys: "/api/surveys",
+      getSurveyById: "/api/surveys/:id",
+      submitSurvey: "/api/surveys/:id/response",
+      
+      // Admin: Survey Management
+      createSurvey: "/api/surveys",
+      updateSurvey: "/api/surveys/:id",
+      deleteSurvey: "/api/surveys/:id",
+      
+      // Admin: Statistics
+      getStatistics: "/api/graduate-statistics",
+      exportReport: "/api/graduate-statistics/export",
     },
 
     classes: {
