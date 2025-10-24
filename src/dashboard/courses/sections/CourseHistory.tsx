@@ -9,6 +9,7 @@ import { config } from "config";
 
 export default function CourseHistory() {
   const [completedGroups, setCompletedGroups] = useState<any[]>([]);
+  const [credentials, setCredentials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingCertificate, setDownloadingCertificate] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export default function CourseHistory() {
         }
 
         const data = await response.json();
-        
+        console.log(data.groups);
         if (data.groups && Array.isArray(data.groups)) {
           setCompletedGroups(data.groups);
         } else {
@@ -67,6 +68,8 @@ export default function CourseHistory() {
   }, []);
 
   const handleDownloadCertificate = async (groupId: number, credentialId?: number) => {
+    console.log(credentialId);
+
     if (!credentialId) {
       toast.error('Este curso no tiene un certificado disponible.');
       return;
@@ -88,7 +91,7 @@ export default function CourseHistory() {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${tokenWithoutQuotes}`,
-          'Accept': 'application/pdf',
+          'Accept': 'application/json',
         }
       });
 
@@ -152,7 +155,6 @@ export default function CourseHistory() {
           {completedGroups.map((group) => {
             const teacher = getTeacher(group.participants);
             const courseImage = getCourseImage(group.course);
-            
             return (
               <Card 
                 key={group.id} 
@@ -163,7 +165,6 @@ export default function CourseHistory() {
                     src={courseImage}
                     alt={group.course.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    onClick={() => window.location.href = `/academico/groups/${group.id}`}
                   />
                 </div>
                 <CardHeader className="pb-3">
@@ -200,7 +201,7 @@ export default function CourseHistory() {
                   <Button 
                     variant="outline" 
                     className="flex-1 gap-2"
-                    onClick={() => handleDownloadCertificate(group.id, group.credential_id)}
+                    onClick={() => handleDownloadCertificate(group.id, group.credentials?.[0]?.id)}
                     disabled={downloadingCertificate === group.id}
                   >
                     <Download className="h-4 w-4" />
