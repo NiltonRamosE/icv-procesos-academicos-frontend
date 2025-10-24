@@ -2,217 +2,112 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
-import { IconCheck, IconAlertCircle, IconClipboardCheck, IconSend } from "@tabler/icons-react";
+import { 
+  IconClipboardCheck, 
+  IconLoader, 
+  IconAlertCircle, 
+  IconCheck,
+  IconClock,
+  IconFileText,
+  IconRefresh,
+  IconEye
+} from "@tabler/icons-react";
+import graduatesApi, { type Survey } from "@/lib/api/graduatesApi";
+import SurveyResponseDialog from "../components/SurveyResponseDialog";
 
 interface GraduateSurveysProps {
   token: string | null;
   user: any;
 }
 
-interface Survey {
-  id: number;
-  title: string;
-  description: string;
-  questions: SurveyQuestion[];
-  completed: boolean;
-}
-
-interface SurveyQuestion {
-  id: number;
-  question: string;
-  type: "text" | "rating" | "multiple_choice";
-  options?: string[];
-}
-
 export default function GraduateSurveys({ token, user }: GraduateSurveysProps) {
-  const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [surveys, setSurveys] = useState<Survey[]>([]);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState(false); // ✅ NUEVO: Estado para el modo vista
 
   useEffect(() => {
-    loadSurveys();
-  }, []);
+    if (token) {
+      loadSurveys();
+    }
+  }, [token]);
 
   const loadSurveys = async () => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setSurveys([
-        {
-          id: 1,
-          title: "Encuesta de Satisfacción del Programa",
-          description: "Ayúdanos a mejorar compartiendo tu experiencia en el programa de capacitación",
-          completed: false,
-          questions: [
-            {
-              id: 1,
-              question: "¿Cómo calificarías la calidad general del programa?",
-              type: "rating"
-            },
-            {
-              id: 2,
-              question: "¿Los contenidos del curso fueron relevantes para tu desarrollo profesional?",
-              type: "text"
-            },
-            {
-              id: 3,
-              question: "¿Recomendarías este programa a otros profesionales?",
-              type: "multiple_choice",
-              options: ["Definitivamente sí", "Probablemente sí", "No estoy seguro", "Probablemente no", "Definitivamente no"]
-            },
-            {
-              id: 4,
-              question: "¿Qué aspectos del programa te parecieron más valiosos?",
-              type: "text"
-            }
-          ]
-        }
-      ]);
-    } catch (error) {
-      console.error("Error cargando encuestas:", error);
+    if (!token) {
       setMessage({
         type: 'error',
-        text: "Error al cargar las encuestas"
+        text: "No hay token de autenticación. Por favor, inicia sesión nuevamente."
       });
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+    try {
+      console.log('🔍 Cargando encuestas con token:', token.substring(0, 30) + '...');
+      const data = await graduatesApi.surveys.list(token);
+      setSurveys(data);
+      console.log('✅ Encuestas cargadas:', data);
+    } catch (error: any) {
+      console.error("❌ Error cargando encuestas:", error);
+      
+      if (error.message.includes("Sesión expirada") || error.message.includes("401")) {
+        setMessage({
+          type: 'error',
+          text: "Tu sesión ha expirado. Por favor, cierra sesión e inicia sesión nuevamente."
+        });
+      } else {
+        setMessage({
+          type: 'error',
+          text: error.message || "Error al cargar las encuestas"
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAnswerChange = (questionId: number, value: string) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
-  };
-
-  const handleSubmitSurvey = async () => {
-    if (!selectedSurvey) return;
-
-    const allAnswered = selectedSurvey.questions.every(q => answers[q.id]);
-    if (!allAnswered) {
+  // ✅ ACTUALIZADO: Ahora detecta si es para ver o responder
+  const handleStartSurvey = (surveyId: number, isCompleted: boolean) => {
+    console.log("🎯 Intentando abrir encuesta ID:", surveyId, "Completada:", isCompleted);
+    const survey = surveys.find(s => s.id === surveyId);
+    
+    if (!survey) {
+      console.error("❌ Encuesta no encontrada");
       setMessage({
         type: 'error',
-        text: "Por favor, responde todas las preguntas antes de enviar"
+        text: "No se pudo cargar la encuesta"
       });
       return;
     }
 
-    setSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setMessage({
-        type: 'success',
-        text: "¡Encuesta enviada exitosamente! Gracias por tu feedback."
-      });
-
-      setSurveys(prev => prev.map(s => 
-        s.id === selectedSurvey.id ? { ...s, completed: true } : s
-      ));
-      
-      setSelectedSurvey(null);
-      setAnswers({});
-      
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error("Error enviando encuesta:", error);
-      setMessage({
-        type: 'error',
-        text: "Error al enviar la encuesta. Por favor, intenta nuevamente."
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    console.log("✅ Encuesta encontrada:", survey);
+    setSelectedSurvey(survey);
+    setViewMode(isCompleted); // ✅ Si está completada, abrir en modo lectura
+    setDialogOpen(true);
   };
 
-  const calculateProgress = () => {
-    if (!selectedSurvey) return 0;
-    const answeredQuestions = Object.keys(answers).length;
-    return (answeredQuestions / selectedSurvey.questions.length) * 100;
+  const handleSurveySuccess = () => {
+    console.log("🎉 Encuesta completada exitosamente");
+    setMessage({
+      type: 'success',
+      text: '¡Encuesta completada exitosamente! Gracias por tu participación.'
+    });
+    setTimeout(() => setMessage(null), 5000);
+    loadSurveys();
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mb-4"></div>
+          <IconLoader className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
           <p className="text-muted-foreground">Cargando encuestas...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!selectedSurvey) {
-    return (
-      <div className="space-y-6">
-        {message && (
-          <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
-            {message.type === 'success' ? (
-              <IconCheck className="h-4 w-4" />
-            ) : (
-              <IconAlertCircle className="h-4 w-4" />
-            )}
-            <AlertTitle>
-              {message.type === 'success' ? '¡Éxito!' : 'Error'}
-            </AlertTitle>
-            <AlertDescription>{message.text}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">Encuestas Disponibles</h2>
-          <p className="text-muted-foreground">
-            Completa las encuestas para ayudarnos a mejorar nuestros programas
-          </p>
-        </div>
-
-        <div className="grid gap-4">
-          {surveys.map((survey) => (
-            <Card key={survey.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <CardTitle className="flex items-center gap-2">
-                      <IconClipboardCheck className="h-5 w-5 text-primary" />
-                      {survey.title}
-                    </CardTitle>
-                    <CardDescription className="mt-2">
-                      {survey.description}
-                    </CardDescription>
-                  </div>
-                  {survey.completed && (
-                    <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-sm border border-green-500/20">
-                      <IconCheck className="h-4 w-4" />
-                      Completada
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="text-sm text-muted-foreground">
-                    {survey.questions.length} preguntas
-                  </div>
-                  <Button
-                    onClick={() => setSelectedSurvey(survey)}
-                    disabled={survey.completed}
-                    variant={survey.completed ? "outline" : "default"}
-                  >
-                    {survey.completed ? "Ver Respuestas" : "Comenzar Encuesta"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </div>
     );
@@ -235,100 +130,237 @@ export default function GraduateSurveys({ token, user }: GraduateSurveysProps) {
       )}
 
       <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={() => {
-            setSelectedSurvey(null);
-            setAnswers({});
-            setMessage(null);
-          }}
-        >
-          ← Volver a encuestas
-        </Button>
-        <div className="text-sm text-muted-foreground">
-          {Object.keys(answers).length} de {selectedSurvey.questions.length} preguntas respondidas
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">Encuestas de Seguimiento</h2>
+          <p className="text-muted-foreground">
+            Completa las encuestas disponibles para ayudarnos a mejorar continuamente
+          </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={loadSurveys}
+          className="gap-2"
+        >
+          <IconRefresh className="h-4 w-4" />
+          Actualizar
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{selectedSurvey.title}</CardTitle>
-          <CardDescription>{selectedSurvey.description}</CardDescription>
-          <div className="pt-4">
-            <Progress value={calculateProgress()} className="h-2" />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {selectedSurvey.questions.map((question, index) => (
-            <div key={question.id} className="space-y-3 pb-6 border-b last:border-0">
-              <Label className="text-base font-semibold">
-                {index + 1}. {question.question}
-              </Label>
-              
-              {question.type === "text" && (
-                <Textarea
-                  placeholder="Escribe tu respuesta aquí..."
-                  value={answers[question.id] || ""}
-                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                  className="min-h-[100px]"
-                />
-              )}
-              
-              {question.type === "rating" && (
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <Button
-                      key={rating}
-                      variant={answers[question.id] === String(rating) ? "default" : "outline"}
-                      onClick={() => handleAnswerChange(question.id, String(rating))}
-                      className="flex-1"
-                    >
-                      {rating}
-                    </Button>
-                  ))}
-                </div>
-              )}
-              
-              {question.type === "multiple_choice" && question.options && (
-                <div className="space-y-2">
-                  {question.options.map((option) => (
-                    <Button
-                      key={option}
-                      variant={answers[question.id] === option ? "default" : "outline"}
-                      onClick={() => handleAnswerChange(question.id, option)}
-                      className="w-full justify-start"
-                    >
-                      {option}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+      {/* Estadísticas rápidas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription className="flex items-center gap-2">
+              <IconFileText className="h-4 w-4" />
+              Total de Encuestas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{surveys.length}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Disponibles para ti
+            </p>
+          </CardContent>
+        </Card>
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => {
-                setSelectedSurvey(null);
-                setAnswers({});
-              }}
-              disabled={submitting}
-            >
-              Cancelar
-            </Button>
-            <Button
-              className="flex-1 gap-2"
-              onClick={handleSubmitSurvey}
-              disabled={submitting || Object.keys(answers).length !== selectedSurvey.questions.length}
-            >
-              <IconSend className="h-4 w-4" />
-              {submitting ? "Enviando..." : "Enviar Encuesta"}
-            </Button>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription className="flex items-center gap-2">
+              <IconCheck className="h-4 w-4" />
+              Completadas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-500">
+              {surveys.filter(s => s.completed).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Encuestas respondidas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription className="flex items-center gap-2">
+              <IconClock className="h-4 w-4" />
+              Pendientes
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-amber-500">
+              {surveys.filter(s => !s.completed).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Por completar
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Lista de encuestas */}
+      {surveys.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="p-4 bg-muted rounded-full mb-4">
+              <IconClipboardCheck className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No hay encuestas disponibles</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-md">
+              Las nuevas encuestas aparecerán aquí cuando estén disponibles. 
+              Mantente atento a las notificaciones.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Encuestas Disponibles</h3>
+          
+          {/* Encuestas pendientes */}
+          {surveys.filter(s => !s.completed).length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <IconClock className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Pendientes de completar
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {surveys
+                  .filter(survey => !survey.completed)
+                  .map((survey) => (
+                    <Card key={survey.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="text-lg">{survey.title}</CardTitle>
+                          <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
+                            Pendiente
+                          </Badge>
+                        </div>
+                        <CardDescription>{survey.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <IconFileText className="h-4 w-4" />
+                            <span>{survey.questions?.length || 0} preguntas</span>
+                          </div>
+                        </div>
+                        <Button
+                          className="w-full gap-2"
+                          onClick={() => {
+                            console.log("🖱️ Click en botón Responder Encuesta");
+                            handleStartSurvey(survey.id, false); // ✅ false = modo edición
+                          }}
+                        >
+                          <IconClipboardCheck className="h-4 w-4" />
+                          Responder Encuesta
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Encuestas completadas */}
+          {surveys.filter(s => s.completed).length > 0 && (
+            <div className="space-y-3 mt-6">
+              <div className="flex items-center gap-2">
+                <IconCheck className="h-4 w-4 text-green-500" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Completadas
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {surveys
+                  .filter(survey => survey.completed)
+                  .map((survey) => (
+                    <Card key={survey.id} className="border-green-500/20 bg-green-500/5">
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="text-lg">{survey.title}</CardTitle>
+                          <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                            <IconCheck className="h-3 w-3 mr-1" />
+                            Completada
+                          </Badge>
+                        </div>
+                        <CardDescription>{survey.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <IconFileText className="h-4 w-4" />
+                            <span>{survey.questions?.length || 0} preguntas</span>
+                          </div>
+                          {survey.completed_at && (
+                            <div className="flex items-center gap-1">
+                              <IconClock className="h-4 w-4" />
+                              <span>
+                                {new Date(survey.completed_at).toLocaleDateString('es-PE', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={() => handleStartSurvey(survey.id, true)} // ✅ true = modo lectura
+                        >
+                          <IconEye className="h-4 w-4" />
+                          Ver Respuestas
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Información adicional */}
+      <Card className="bg-blue-500/5 border-blue-500/20">
+        <CardContent className="pt-6">
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              <div className="p-3 bg-blue-500/10 rounded-lg">
+                <IconClipboardCheck className="h-6 w-6 text-blue-500" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-semibold">¿Por qué completar las encuestas?</h4>
+              <p className="text-sm text-muted-foreground">
+                Tus respuestas nos ayudan a entender mejor tu experiencia profesional y a mejorar
+                nuestros programas de formación. Toda la información es confidencial y se utiliza
+                únicamente con fines estadísticos.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal para responder/ver encuesta */}
+      <SurveyResponseDialog
+        survey={selectedSurvey}
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          console.log("📋 Estado del diálogo cambiado a:", open);
+          setDialogOpen(open);
+          if (!open) {
+            setSelectedSurvey(null);
+            setViewMode(false); // ✅ Resetear modo vista
+          }
+        }}
+        token={token}
+        onSuccess={handleSurveySuccess}
+        viewMode={viewMode} // ✅ NUEVO: Pasar el modo vista
+      />
     </div>
   );
 }
