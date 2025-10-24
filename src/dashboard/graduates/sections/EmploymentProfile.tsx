@@ -7,27 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconCheck, IconAlertCircle, IconBriefcase, IconBuilding, IconCurrencyDollar, IconCalendar } from "@tabler/icons-react";
+import graduatesApi, { type EmploymentProfileData } from "@/lib/api/graduatesApi";
 
 interface EmploymentProfileProps {
   token: string | null;
   user: any;
 }
 
-interface EmploymentData {
-  employment_status: string;
-  company_name: string;
-  position: string;
-  start_date: string;
-  salary_range: string;
-  industry: string;
-  is_related_to_studies: boolean;
-}
-
 export default function EmploymentProfile({ token, user }: EmploymentProfileProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [formData, setFormData] = useState<EmploymentData>({
+  const [formData, setFormData] = useState<EmploymentProfileData>({
     employment_status: "",
     company_name: "",
     position: "",
@@ -38,31 +29,41 @@ export default function EmploymentProfile({ token, user }: EmploymentProfileProp
   });
 
   useEffect(() => {
-    loadEmploymentProfile();
-  }, []);
+    if (token) {
+      loadEmploymentProfile();
+    }
+  }, [token]);
 
   const loadEmploymentProfile = async () => {
+    if (!token) return;
+    
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const profile = await graduatesApi.employmentProfile.get(token);
       
-      setFormData({
-        employment_status: "empleado",
-        company_name: "Tech Solutions SAC",
-        position: "Desarrollador Full Stack",
-        start_date: "2024-06-01",
-        salary_range: "3000-5000",
-        industry: "tecnologia",
-        is_related_to_studies: true
-      });
+      if (profile) {
+        setFormData({
+          employment_status: profile.employment_status || "",
+          company_name: profile.company_name || "",
+          position: profile.position || "",
+          start_date: profile.start_date || "",
+          salary_range: profile.salary_range || "",
+          industry: profile.industry || "",
+          is_related_to_studies: profile.is_related_to_studies ?? true
+        });
+      }
     } catch (error) {
       console.error("Error cargando perfil:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al cargar el perfil laboral"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (field: keyof EmploymentData, value: string | boolean) => {
+  const handleChange = (field: keyof EmploymentProfileData, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -71,10 +72,13 @@ export default function EmploymentProfile({ token, user }: EmploymentProfileProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
+
     setSaving(true);
+    setMessage(null);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await graduatesApi.employmentProfile.save(token, formData);
 
       setMessage({
         type: 'success',
@@ -82,11 +86,11 @@ export default function EmploymentProfile({ token, user }: EmploymentProfileProp
       });
 
       setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error actualizando perfil:", error);
       setMessage({
         type: 'error',
-        text: "Error al actualizar el perfil. Por favor, intenta nuevamente."
+        text: error.message || "Error al actualizar el perfil. Por favor, intenta nuevamente."
       });
     } finally {
       setSaving(false);
