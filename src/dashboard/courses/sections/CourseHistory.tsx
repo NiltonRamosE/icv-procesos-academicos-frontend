@@ -206,12 +206,6 @@ export default function CourseHistory() {
                     <Download className="h-4 w-4" />
                     {downloadingCertificate === group.id ? 'Descargando...' : 'Certificado'}
                   </Button>
-                  <Button 
-                    className="flex-1"
-                    onClick={() => window.location.href = `/academico/groups/${group.id}`}
-                  >
-                    Ver Detalles
-                  </Button>
                 </CardFooter>
               </Card>
             );
