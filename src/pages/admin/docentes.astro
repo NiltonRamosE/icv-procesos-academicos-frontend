@@ -1,0 +1,17 @@
+---
+// src/pages/academico/admin/docentes.astro
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import TeacherManagement from '@/admin/components/TeacherManagement';
+
+const robots = ["noindex", "nofollow"];
+const title = "Gestión de Docentes";
+const description = "Gestión de docentes del sistema académico";
+const keywords = ["docentes", "gestión", "admin"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/admin/docentes";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+  <TeacherManagement client:load />
+</DashboardLayout>
