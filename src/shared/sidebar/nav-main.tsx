@@ -19,7 +19,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import type { NavItem } from "@/shared/site" // ← Agregar 'type' aquí
+import type { NavItem } from "@/shared/site"
 
 interface User {
   role?: string | string[];
@@ -28,9 +28,10 @@ interface User {
 
 interface NavMainProps {
   items: NavItem[];
+  searchTerm?: string;
 }
 
-export function NavMain({ items }: NavMainProps) {
+export function NavMain({ items, searchTerm = '' }: NavMainProps) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -49,24 +50,62 @@ export function NavMain({ items }: NavMainProps) {
 
   const isAdmin = user?.role?.includes('admin') || user?.roles?.includes('admin');
 
-  // Filtrar items basado en el rol del usuario
-  const filteredItems = items
-    .filter(item => {
-      if (item.adminOnly && !isAdmin) {
-        return false;
-      }
-      return true;
-    })
-    .map(item => ({
-      ...item,
-      items: item.items?.filter(subItem => {
-        if (subItem.adminOnly && !isAdmin) {
+  // Función para filtrar items basado en búsqueda y rol
+  const filterItems = (navItems: NavItem[]): NavItem[] => {
+    return navItems
+      .filter(item => {
+        // Filtro por rol
+        if (item.adminOnly && !isAdmin) {
           return false;
         }
+        
+        // Filtro por búsqueda
+        if (searchTerm) {
+          const matchesTitle = item.title.toLowerCase().includes(searchTerm.toLowerCase());
+          const matchesSubItems = item.items?.some(subItem => 
+            subItem.title.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          return matchesTitle || matchesSubItems;
+        }
+        
         return true;
-      }) || []
-    }))
-    .filter(item => item.items.length > 0 || !item.items);
+      })
+      .map(item => ({
+        ...item,
+        items: item.items?.filter(subItem => {
+          // Filtro por rol en subitems
+          if (subItem.adminOnly && !isAdmin) {
+            return false;
+          }
+          
+          // Filtro por búsqueda en subitems
+          if (searchTerm) {
+            return subItem.title.toLowerCase().includes(searchTerm.toLowerCase());
+          }
+          
+          return true;
+        }) || []
+      }))
+      .filter(item => item.items.length > 0 || !item.items);
+  };
+
+  const filteredItems = filterItems(items);
+
+  // Si hay término de búsqueda y no hay resultados
+  if (searchTerm && filteredItems.length === 0) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="px-2 py-3 text-center text-sm text-muted-foreground">
+              No se encontraron resultados para "{searchTerm}"
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+    );
+  }
 
   return (
     <SidebarGroup>
@@ -109,5 +148,5 @@ export function NavMain({ items }: NavMainProps) {
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }
