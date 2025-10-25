@@ -39,6 +39,8 @@ export interface NavSimpleItem {
   url: string;
   icon: Icon;
   adminOnly?: boolean;
+  type?: 'link' | 'search'; // Agregar esta línea
+
 }
 
 export const siteConfig = {
@@ -195,15 +197,17 @@ export const navAdminSecondary: NavSimpleItem[] = [
 ];
 
 export const navMainOptions: NavSimpleItem[] = [
-  {
-    title: "Settings",
-    url: "#",
+   {
+    title: "Configuración",
+    url: "/academico/dashboard/configuracion",
     icon: IconSettings,
+    type: 'link'
   },
   {
-    title: "Get Help",
-    url: "#",
+    title: "Ayuda", 
+    url: "/academico/dashboard/ayuda",
     icon: IconHelp,
+    type: 'link'
   },
   {
     title: "Search",
