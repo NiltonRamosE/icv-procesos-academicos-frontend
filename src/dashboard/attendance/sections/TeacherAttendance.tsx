@@ -1,3 +1,4 @@
+// components/teacher-attendance.tsx
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,8 @@ import {
   IconLoader,
   IconCheckbox
 } from "@tabler/icons-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { config } from "config";
+import { en } from "zod/v4/locales";
 
 interface TeacherAttendanceProps {
   token: string | null;
@@ -26,7 +28,7 @@ interface TeacherAttendanceProps {
 interface Group {
   id: number;
   name: string;
-  course_name: string;
+  code: string;
 }
 
 interface Class {
@@ -35,14 +37,22 @@ interface Class {
   class_date: string;
   start_time: string;
   end_time: string;
+  class_status: string;
 }
 
 interface Student {
   id: number;
   name: string;
   email: string;
-  photo: string;
-  attendance_status?: 'present' | 'absent' | 'late' | null;
+  photo: string | null;
+  group_participant_id: number;
+}
+
+interface AttendanceData {
+  group_participant_id: number;
+  class_id: number;
+  attended: boolean;
+  observations?: string;
 }
 
 export default function TeacherAttendance({ token, user }: TeacherAttendanceProps) {
@@ -55,98 +65,210 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>("");
   const [students, setStudents] = useState<Student[]>([]);
-  const [attendanceData, setAttendanceData] = useState<Record<number, 'present' | 'absent' | 'late'>>({});
+  const [attendanceData, setAttendanceData] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    loadGroups();
-  }, []);
+    loadTeacherGroups();
+  }, [user]);
 
   useEffect(() => {
     if (selectedGroup) {
       loadClasses(selectedGroup);
+      setSelectedClass("");
+      setStudents([]);
+      setAttendanceData({});
     }
   }, [selectedGroup]);
 
   useEffect(() => {
     if (selectedClass) {
-      loadStudents(selectedClass);
+      loadStudents(selectedGroup, selectedClass);
     }
   }, [selectedClass]);
 
-  const loadGroups = async () => {
+  const loadTeacherGroups = async () => {
+    if (!token || !user) return;
+
     setLoading(true);
     try {
-      // Simulación - Reemplazar con API real
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const tokenWithoutQuotes = token.replace(/^"|"$/g, "");
+      const endpointTeacherGroups = config.endpoints.groups.getGroupsByTeacher.replace(':userId', user.id);
+      const response = await fetch(`${config.apiUrl}${endpointTeacherGroups}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${tokenWithoutQuotes}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al cargar grupos del docente");
+      }
+
+      const data = await response.json();
       
-      setGroups([
-        { id: 1, name: "Grupo A - Mañana", course_name: "Desarrollo Web Full Stack" },
-        { id: 2, name: "Grupo B - Tarde", course_name: "Python Avanzado" },
-        { id: 3, name: "Grupo C - Noche", course_name: "React & TypeScript" }
-      ]);
+      const groupsList: Group[] = data.map((groupItem: any) => ({
+        id: groupItem.group.id,
+        name: groupItem.group.name,
+        code: groupItem.group.code
+      })) || [];
+
+      setGroups(groupsList);
     } catch (error) {
       console.error("Error cargando grupos:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al cargar los grupos. Por favor, intenta nuevamente."
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const loadClasses = async (groupId: string) => {
+    if (!token) return;
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const tokenWithoutQuotes = token.replace(/^"|"$/g, "");
+      const endpointClasses = config.endpoints.classes.getByGroup.replace(':groupId', groupId);
+      const response = await fetch(
+        `${config.apiUrl}${endpointClasses}`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al cargar clases");
+      }
+
+      const data = await response.json();
       
-      setClasses([
-        { id: 1, class_name: "Introducción a React", class_date: "2025-10-20", start_time: "10:00", end_time: "12:00" },
-        { id: 2, class_name: "Componentes y Props", class_date: "2025-10-22", start_time: "10:00", end_time: "12:00" },
-        { id: 3, class_name: "State y Hooks", class_date: "2025-10-24", start_time: "10:00", end_time: "12:00" }
-      ]);
+      const classesList: Class[] = data.classes?.map((classItem: any) => ({
+        id: classItem.id,
+        class_name: classItem.class_name,
+        class_date: classItem.class_date,
+        start_time: classItem.start_time,
+        end_time: classItem.end_time,
+        class_status: classItem.class_status
+      })) || [];
+
+      setClasses(classesList);
     } catch (error) {
       console.error("Error cargando clases:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al cargar las clases. Por favor, intenta nuevamente."
+      });
     }
   };
 
-  const loadStudents = async (classId: string) => {
+  const loadStudents = async (groupId: string, classId: string) => {
+    if (!token) return;
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const tokenWithoutQuotes = token.replace(/^"|"$/g, "");
+      const endpointStudents = config.endpoints.groups.getStudentsByGroup.replace(':groupId', groupId);
+      const response = await fetch(
+        `${config.apiUrl}${endpointStudents}`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al cargar estudiantes");
+      }
+
+      const data = await response.json();
       
-      const studentsList: Student[] = [
-        { id: 1, name: "Ana García Mendoza", email: "ana.garcia@estudiante.edu.pe", photo: "/images/9440461.webp" },
-        { id: 2, name: "Luis Pérez Santos", email: "luis.perez@estudiante.edu.pe", photo: "/images/9440461.webp" },
-        { id: 3, name: "María Torres Vega", email: "maria.torres@estudiante.edu.pe", photo: "/images/9440461.webp" },
-        { id: 4, name: "José Ramírez Cruz", email: "jose.ramirez@estudiante.edu.pe", photo: "/images/9440461.webp" },
-        { id: 5, name: "Carmen López Silva", email: "carmen.lopez@estudiante.edu.pe", photo: "/images/9440461.webp" }
-      ];
-      
+      const studentsList: Student[] = data.map((studentItem: any) => ({
+        id: studentItem.user.id,
+        name: studentItem.user.full_name,
+        email: studentItem.user.email,
+        photo: studentItem.user.profile_photo,
+        group_participant_id: studentItem.id
+      })) || [];
+
       setStudents(studentsList);
       
-      // Inicializar todos como ausentes por defecto
-      const initialAttendance: Record<number, 'present' | 'absent' | 'late'> = {};
-      studentsList.forEach(student => {
-        initialAttendance[student.id] = 'absent';
-      });
-      setAttendanceData(initialAttendance);
+      // Cargar asistencias existentes para esta clase
+      loadExistingAttendances(classId, studentsList);
     } catch (error) {
       console.error("Error cargando estudiantes:", error);
+      setMessage({
+        type: 'error',
+        text: "Error al cargar los estudiantes. Por favor, intenta nuevamente."
+      });
     }
   };
 
-  const handleAttendanceChange = (studentId: number, status: 'present' | 'absent' | 'late') => {
+  const loadExistingAttendances = async (classId: string, studentsList: Student[]) => {
+    if (!token) return;
+
+    try {
+      const tokenWithoutQuotes = token.replace(/^"|"$/g, "");
+      const endpointExistingAttendances = config.endpoints.attendance.getAttendancesByClass.replace(':classId', classId);
+      const response = await fetch(
+        `${config.apiUrl}${endpointExistingAttendances}`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      const initialAttendance: Record<number, boolean> = {};
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Mapear asistencias existentes
+        data.forEach((attendance: any) => {
+          initialAttendance[attendance.group_participant_id] = attendance.attended;
+        });
+      }
+      
+      // Inicializar los que no tienen asistencia como ausentes (false)
+      studentsList.forEach(student => {
+        if (initialAttendance[student.group_participant_id] === undefined) {
+          initialAttendance[student.group_participant_id] = false;
+        }
+      });
+      
+      setAttendanceData(initialAttendance);
+    } catch (error) {
+      console.error("Error cargando asistencias existentes:", error);
+    }
+  };
+
+  const handleAttendanceChange = (groupParticipantId: number, attended: boolean) => {
     setAttendanceData(prev => ({
       ...prev,
-      [studentId]: status
+      [groupParticipantId]: attended
     }));
   };
 
   const handleMarkAllPresent = () => {
-    const allPresent: Record<number, 'present' | 'absent' | 'late'> = {};
+    const allPresent: Record<number, boolean> = {};
     students.forEach(student => {
-      allPresent[student.id] = 'present';
+      allPresent[student.group_participant_id] = true;
     });
     setAttendanceData(allPresent);
   };
 
   const handleSubmitAttendance = async () => {
-    if (!selectedClass) {
+    if (!selectedClass || !token) {
       setMessage({
         type: 'error',
         text: "Por favor, selecciona una clase primero"
@@ -156,13 +278,42 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
 
     setSaving(true);
     try {
-      // Aquí iría la llamada real a la API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const tokenWithoutQuotes = token.replace(/^"|"$/g, "");
+      const attendanceRecords: AttendanceData[] = [];
 
-      setMessage({
-        type: 'success',
-        text: "¡Asistencia registrada exitosamente!"
+      // Preparar datos para enviar
+      students.forEach(student => {
+        attendanceRecords.push({
+          group_participant_id: student.group_participant_id,
+          class_id: parseInt(selectedClass),
+          attended: attendanceData[student.group_participant_id] || false,
+          observations: ""
+        });
       });
+
+      // Enviar cada registro de asistencia
+      const promises = attendanceRecords.map(record =>
+        fetch(`${config.apiUrl}${config.endpoints.attendance.create}`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${tokenWithoutQuotes}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(record)
+        })
+      );
+
+      const results = await Promise.all(promises);
+      const allSuccessful = results.every(response => response.ok);
+
+      if (allSuccessful) {
+        setMessage({
+          type: 'success',
+          text: "¡Asistencia registrada exitosamente!"
+        });
+      } else {
+        throw new Error("Algunas asistencias no se pudieron guardar");
+      }
 
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
@@ -177,10 +328,24 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
   };
 
   const getAttendanceStats = () => {
-    const present = Object.values(attendanceData).filter(s => s === 'present').length;
-    const absent = Object.values(attendanceData).filter(s => s === 'absent').length;
-    const late = Object.values(attendanceData).filter(s => s === 'late').length;
-    return { present, absent, late };
+    const present = Object.values(attendanceData).filter(attended => attended).length;
+    const absent = Object.values(attendanceData).filter(attended => !attended).length;
+    return { present, absent };
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-PE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    return new Date(timeString).toLocaleTimeString('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const stats = getAttendanceStats();
@@ -233,7 +398,7 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
               <SelectContent>
                 {groups.map((group) => (
                   <SelectItem key={group.id} value={String(group.id)}>
-                    {group.name} - {group.course_name}
+                    {group.name} ({group.code})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -257,7 +422,12 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
               <SelectContent>
                 {classes.map((classItem) => (
                   <SelectItem key={classItem.id} value={String(classItem.id)}>
-                    {classItem.class_name} - {new Date(classItem.class_date).toLocaleDateString('es-PE')}
+                    <div className="flex flex-col">
+                      <span className="font-medium">{classItem.class_name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(classItem.class_date)} • {formatTime(classItem.start_time)} - {formatTime(classItem.end_time)}
+                      </span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -269,7 +439,7 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
       {selectedClass && students.length > 0 && (
         <>
           {/* Estadísticas */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
@@ -305,18 +475,6 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
                 </div>
               </CardContent>
             </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tardanzas</p>
-                    <p className="text-2xl font-bold text-amber-500">{stats.late}</p>
-                  </div>
-                  <IconClock className="h-8 w-8 text-amber-500" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Lista de Estudiantes */}
@@ -348,9 +506,9 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
                   >
                     <div className="flex items-center gap-3 flex-1">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={student.photo} />
+                        <AvatarImage src={student.photo || "/academico/images/9439727.webp"} />
                         <AvatarFallback>
-                          {student.name.split(' ').map(n => n[0]).join('')}
+                          {student.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -362,27 +520,18 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        variant={attendanceData[student.id] === 'present' ? 'default' : 'outline'}
-                        onClick={() => handleAttendanceChange(student.id, 'present')}
-                        className={attendanceData[student.id] === 'present' ? 'bg-green-500 hover:bg-green-600' : ''}
+                        variant={attendanceData[student.group_participant_id] ? 'default' : 'outline'}
+                        onClick={() => handleAttendanceChange(student.group_participant_id, true)}
+                        className={attendanceData[student.group_participant_id] ? 'bg-green-500 hover:bg-green-600' : ''}
                       >
                         <IconUserCheck className="h-4 w-4 mr-1" />
                         Presente
                       </Button>
                       <Button
                         size="sm"
-                        variant={attendanceData[student.id] === 'late' ? 'default' : 'outline'}
-                        onClick={() => handleAttendanceChange(student.id, 'late')}
-                        className={attendanceData[student.id] === 'late' ? 'bg-amber-500 hover:bg-amber-600' : ''}
-                      >
-                        <IconClock className="h-4 w-4 mr-1" />
-                        Tardanza
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={attendanceData[student.id] === 'absent' ? 'default' : 'outline'}
-                        onClick={() => handleAttendanceChange(student.id, 'absent')}
-                        className={attendanceData[student.id] === 'absent' ? 'bg-red-500 hover:bg-red-600' : ''}
+                        variant={!attendanceData[student.group_participant_id] ? 'default' : 'outline'}
+                        onClick={() => handleAttendanceChange(student.group_participant_id, false)}
+                        className={!attendanceData[student.group_participant_id] ? 'bg-red-500 hover:bg-red-600' : ''}
                       >
                         <IconUserX className="h-4 w-4 mr-1" />
                         Ausente
@@ -399,7 +548,14 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
                   className="w-full"
                   size="lg"
                 >
-                  {saving ? "Guardando..." : "Guardar Asistencia"}
+                  {saving ? (
+                    <>
+                      <IconLoader className="h-4 w-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    "Guardar Asistencia"
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -407,13 +563,37 @@ export default function TeacherAttendance({ token, user }: TeacherAttendanceProp
         </>
       )}
 
-      {!selectedGroup && (
+      {selectedGroup && classes.length === 0 && (
+        <Card className="p-12">
+          <div className="text-center space-y-4">
+            <IconCalendar className="h-16 w-16 text-muted-foreground mx-auto" />
+            <h3 className="text-2xl font-semibold">No hay clases programadas</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              No se encontraron clases para el grupo seleccionado.
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {!selectedGroup && groups.length > 0 && (
         <Card className="p-12">
           <div className="text-center space-y-4">
             <IconUsers className="h-16 w-16 text-muted-foreground mx-auto" />
             <h3 className="text-2xl font-semibold">Selecciona un Grupo</h3>
             <p className="text-muted-foreground max-w-md mx-auto">
               Elige un grupo y una clase para comenzar a registrar la asistencia
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {groups.length === 0 && (
+        <Card className="p-12">
+          <div className="text-center space-y-4">
+            <IconUsers className="h-16 w-16 text-muted-foreground mx-auto" />
+            <h3 className="text-2xl font-semibold">No tienes grupos asignados</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Actualmente no estás asignado como docente en ningún grupo.
             </p>
           </div>
         </Card>
