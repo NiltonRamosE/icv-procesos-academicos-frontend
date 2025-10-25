@@ -8,7 +8,7 @@ import { IconClipboardCheck, IconChartBar, IconBriefcase } from "@tabler/icons-r
 // Importar secciones
 import GraduateSurveys from "@/dashboard/graduates/sections/GraduateSurveys";
 import EmploymentProfile from "@/dashboard/graduates/sections/EmploymentProfile";
-import AdminStatistics from "./sections/AdminStatistics";
+import AdminStatistics from "@/dashboard/graduates/sections/AdminStatistics";
 
 export default function GraduatesModule() {
   const [token, setToken] = useState<string | null>(null);

@@ -107,7 +107,7 @@ export const navMainCollapse: NavItem[] = [
     items: [
       {
         title: "Registro de Asistencia",
-        url: `${urlAttendance}#registro-asistencia`,
+        url: `${urlAttendance}#`,
       },
       {
         title: "Estadísticas",
