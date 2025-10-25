@@ -117,10 +117,10 @@ export const navMainCollapse: NavItem[] = [
         title: "Registro de Asistencia",
         url: `${urlAttendance}#registro-asistencia`,
       },
-      {
+      /* {
         title: "Estadísticas",
         url: `${urlAttendance}#estadisticas-asistencia`,
-      },
+      }, */
     ],
   },
   // NUEVA SECCIÓN: ADMINISTRACIÓN (solo visible para admins)

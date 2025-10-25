@@ -28,16 +28,14 @@ export const config = {
       getById: "/api/groups/:id",
       getAnnouncements: "/api/groups/:id/announcements",
       createAnnouncement: "/api/groups/:id/announcements",
-      getEvaluations: "/api/groups/:id/evaluations",
-      createEvaluation: "/api/groups/:id/evaluations",
-      getGrades: "/api/groups/:id/grades",
       getParticipants: "/api/groups/:id/participants",
-      getClasses: "/api/groups/:id/classes",
-      createClass: "/api/groups/:id/classes",
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
       join: "/api/groups/:id/join",
-      getGroupsCompleted: "/api/groups/completed/:userId"
+      getGroupsCompleted: "/api/groups/completed/:userId",
+      getGroupsByTeacher: "/api/group-participants/teacher/:userId",
+      getGroupsByStudent: "/api/group-participants/student/:userId",
+      getStudentsByGroup: "/api/group-participants/group/:groupId/students",
     },
     
     courses: {
@@ -84,11 +82,9 @@ export const config = {
     },
 
     attendance: {
-      getByGroup: "/api/attendance/group/:groupId",
-      getByStudent: "/api/attendance/student/:studentId",
-      markAttendance: "/api/attendance/mark",
-      getStatistics: "/api/attendance/statistics/:groupId",
-      getByClass: "/api/attendance/class/:classId",
+      create: "/api/attendances",
+      getAttendancesByClass: "/api/attendances/class/:classId",
+      getStudentAttendances: "/api/attendances/student/:userId/group/:groupId"
     },
 
     certificates: {
