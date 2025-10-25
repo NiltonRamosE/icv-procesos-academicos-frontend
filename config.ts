@@ -4,9 +4,10 @@
  * para esto, se ha creado un objeto config que contiene la url de la api y los endpoints.
  * Los endpoints estan divididos por secciones, como auth, users, clientes, productos y blogs.
  **/
+
 export const config = {
-  //apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
-  apiUrl:"http://127.0.0.1:8000",
+  apiUrl:"https://instituto.cetivirgendelapuerta.com/academico/backend/public",
+  //apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
 
@@ -27,16 +28,14 @@ export const config = {
       getById: "/api/groups/:id",
       getAnnouncements: "/api/groups/:id/announcements",
       createAnnouncement: "/api/groups/:id/announcements",
-      getEvaluations: "/api/groups/:id/evaluations",
-      createEvaluation: "/api/groups/:id/evaluations",
-      getGrades: "/api/groups/:id/grades",
       getParticipants: "/api/groups/:id/participants",
-      getClasses: "/api/groups/:id/classes",
-      createClass: "/api/groups/:id/classes",
       create: "/api/groups",
       complete: "/api/groups/:groupId/complete",
       join: "/api/groups/:id/join",
-      getGroupsCompleted: "/api/groups/completed/:userId"
+      getGroupsCompleted: "/api/groups/completed/:userId",
+      getGroupsByTeacher: "/api/group-participants/teacher/:userId",
+      getGroupsByStudent: "/api/group-participants/student/:userId",
+      getStudentsByGroup: "/api/group-participants/group/:groupId/students",
     },
     
     courses: {
@@ -47,12 +46,24 @@ export const config = {
     },
 
     graduates: {
-      getSurveys: "/api/graduates/surveys",
-      submitSurvey: "/api/graduates/surveys",
-      getProfile: "/api/graduates/profile",
-      updateProfile: "/api/graduates/profile",
-      getStatistics: "/api/graduates/statistics",
-      getEmploymentData: "/api/graduates/employment",
+      // Employment Profile
+      getProfile: "/api/employment-profile",
+      updateProfile: "/api/employment-profile",
+      deleteProfile: "/api/employment-profile",
+      
+      // Surveys
+      getSurveys: "/api/surveys",
+      getSurveyById: "/api/surveys/:id",
+      submitSurvey: "/api/surveys/:id/response",
+      
+      // Admin: Survey Management
+      createSurvey: "/api/surveys",
+      updateSurvey: "/api/surveys/:id",
+      deleteSurvey: "/api/surveys/:id",
+      
+      // Admin: Statistics
+      getStatistics: "/api/graduate-statistics",
+      exportReport: "/api/graduate-statistics/export",
     },
 
     classes: {
@@ -71,11 +82,9 @@ export const config = {
     },
 
     attendance: {
-      getByGroup: "/api/attendance/group/:groupId",
-      getByStudent: "/api/attendance/student/:studentId",
-      markAttendance: "/api/attendance/mark",
-      getStatistics: "/api/attendance/statistics/:groupId",
-      getByClass: "/api/attendance/class/:classId",
+      create: "/api/attendances",
+      getAttendancesByClass: "/api/attendances/class/:classId",
+      getStudentAttendances: "/api/attendances/student/:userId/group/:groupId"
     },
 
     certificates: {

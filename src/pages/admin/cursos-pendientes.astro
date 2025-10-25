@@ -1,0 +1,16 @@
+---
+// src/pages/academico/admin/cursos-pendientes.astro
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import PendingCourses from '@/admin/components/PendingCourses';
+const robots = ["noindex", "nofollow"];
+const title = "Cursos Pendientes";
+const description = "Revisión y aprobación de cursos pendientes";
+const keywords = ["cursos", "pendientes", "aprobación", "admin"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/admin/cursos-pendientes";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+  <PendingCourses client:load />
+</DashboardLayout>

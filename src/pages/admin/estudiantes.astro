@@ -1,0 +1,16 @@
+---
+// src/pages/academico/admin/estudiantes.astro
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import StudentManagement from '@/admin/components/StudentManagement';
+const robots = ["noindex", "nofollow"];
+const title = "Gestión de Estudiantes";
+const description = "Gestión de estudiantes del sistema académico";
+const keywords = ["estudiantes", "gestión", "admin"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/admin/estudiantes";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
+---
+
+<DashboardLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+  <StudentManagement client:load />
+</DashboardLayout>

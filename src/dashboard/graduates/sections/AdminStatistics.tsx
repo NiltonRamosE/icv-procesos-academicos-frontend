@@ -1,3 +1,4 @@
+// Archivo: src/dashboard/graduates/sections/AdminStatistics.tsx
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,63 +10,280 @@ import {
   IconChartBar,
   IconBuilding,
   IconCurrencyDollar,
-  IconLoader
+  IconLoader,
+  IconFileTypePdf
 } from "@tabler/icons-react";
-import { config } from "config";
+import graduatesApi, { type StatisticsData } from "@/lib/api/graduatesApi";
 
 interface AdminStatisticsProps {
   token: string | null;
 }
 
-interface StatisticsData {
-  total_graduates: number;
-  employed_count: number;
-  employment_rate: number;
-  average_salary_range: string;
-  top_industries: { name: string; count: number; percentage: number }[];
-  employment_by_status: { status: string; count: number; percentage: number }[];
-  related_work_percentage: number;
-}
-
 export default function AdminStatistics({ token }: AdminStatisticsProps) {
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [statistics, setStatistics] = useState<StatisticsData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadStatistics();
-  }, []);
+    if (token) {
+      loadStatistics();
+    }
+  }, [token]);
 
   const loadStatistics = async () => {
+    if (!token) return;
+
     setLoading(true);
+    setError(null);
     try {
-      // Simulación de datos - Reemplazar con llamada real a la API
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      setStatistics({
-        total_graduates: 245,
-        employed_count: 198,
-        employment_rate: 80.8,
-        average_salary_range: "S/ 3,000 - S/ 5,000",
-        related_work_percentage: 75.5,
-        top_industries: [
-          { name: "Tecnología", count: 89, percentage: 44.9 },
-          { name: "Educación", count: 34, percentage: 17.2 },
-          { name: "Finanzas", count: 28, percentage: 14.1 },
-          { name: "Salud", count: 22, percentage: 11.1 },
-          { name: "Otros", count: 25, percentage: 12.6 }
-        ],
-        employment_by_status: [
-          { status: "Empleado", count: 165, percentage: 67.3 },
-          { status: "Independiente", count: 33, percentage: 13.5 },
-          { status: "Emprendedor", count: 12, percentage: 4.9 },
-          { status: "Buscando empleo", count: 25, percentage: 10.2 },
-          { status: "Estudiando", count: 10, percentage: 4.1 }
-        ]
-      });
-    } catch (error) {
-      console.error("Error cargando estadísticas:", error);
+      const data = await graduatesApi.statistics.get(token);
+      console.log('✅ Estadísticas cargadas:', data);
+      setStatistics(data);
+    } catch (error: any) {
+      console.error("❌ Error cargando estadísticas:", error);
+      setError(error.message || "Error al cargar las estadísticas");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generatePDF = () => {
+    if (!statistics) return;
+
+    setExporting(true);
+
+    try {
+      // Crear HTML para el PDF
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Reporte de Empleabilidad</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 40px;
+              background: white;
+              color: #1a1a1a;
+            }
+            .header {
+              background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+              color: white;
+              padding: 30px;
+              text-align: center;
+              margin-bottom: 30px;
+              border-radius: 10px;
+            }
+            .header h1 { font-size: 28px; margin-bottom: 8px; }
+            .header p { font-size: 14px; opacity: 0.9; }
+            .metrics {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 20px;
+              margin-bottom: 30px;
+            }
+            .metric-card {
+              border: 2px solid #e5e7eb;
+              border-radius: 8px;
+              padding: 20px;
+              text-align: center;
+            }
+            .metric-card h3 {
+              font-size: 36px;
+              font-weight: bold;
+              margin-bottom: 8px;
+            }
+            .metric-card p {
+              color: #6b7280;
+              font-size: 13px;
+            }
+            .metric-card.blue { border-color: #3b82f6; }
+            .metric-card.blue h3 { color: #3b82f6; }
+            .metric-card.green { border-color: #22c55e; }
+            .metric-card.green h3 { color: #22c55e; }
+            .metric-card.purple { border-color: #a855f7; }
+            .metric-card.purple h3 { color: #a855f7; }
+            .metric-card.orange { border-color: #f97316; }
+            .metric-card.orange h3 { color: #f97316; }
+            .section {
+              margin-bottom: 30px;
+              page-break-inside: avoid;
+            }
+            .section-title {
+              font-size: 20px;
+              font-weight: bold;
+              margin-bottom: 15px;
+              padding-bottom: 10px;
+              border-bottom: 3px solid #3b82f6;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 10px;
+            }
+            th, td {
+              padding: 12px;
+              text-align: left;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            th {
+              background-color: #3b82f6;
+              color: white;
+              font-weight: bold;
+            }
+            tr:nth-child(even) {
+              background-color: #f9fafb;
+            }
+            .salary-info {
+              background: #eff6ff;
+              border: 2px solid #3b82f6;
+              border-radius: 8px;
+              padding: 15px;
+              margin: 20px 0;
+              text-align: center;
+            }
+            .salary-info strong {
+              color: #3b82f6;
+              font-size: 18px;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px solid #e5e7eb;
+              text-align: center;
+              color: #6b7280;
+              font-size: 12px;
+            }
+            @media print {
+              body { padding: 20px; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>📊 Reporte de Empleabilidad</h1>
+            <p>Dashboard de Estadísticas de Egresados</p>
+            <p>Generado el ${new Date().toLocaleDateString('es-ES', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })} a las ${new Date().toLocaleTimeString('es-ES', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</p>
+          </div>
+
+          <div class="metrics">
+            <div class="metric-card blue">
+              <h3>${statistics.total_graduates || 0}</h3>
+              <p>Total de Egresados</p>
+            </div>
+            <div class="metric-card green">
+              <h3>${statistics.employed_count || 0}</h3>
+              <p>Egresados Empleados</p>
+            </div>
+            <div class="metric-card purple">
+              <h3>${statistics.employment_rate || 0}%</h3>
+              <p>Tasa de Empleabilidad</p>
+            </div>
+            <div class="metric-card orange">
+              <h3>${statistics.related_work_percentage || 0}%</h3>
+              <p>Trabajo Relacionado con Estudios</p>
+            </div>
+          </div>
+
+          <div class="salary-info">
+            <p style="margin-bottom: 5px; color: #374151;">Rango Salarial Promedio</p>
+            <strong>${statistics.average_salary_range || 'No disponible'}</strong>
+          </div>
+
+          ${statistics.employment_by_status && statistics.employment_by_status.length > 0 ? `
+          <div class="section">
+            <h2 class="section-title">📈 Distribución por Estado Laboral</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Estado Laboral</th>
+                  <th style="text-align: center;">Cantidad</th>
+                  <th style="text-align: center;">Porcentaje</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${statistics.employment_by_status.map(status => `
+                  <tr>
+                    <td><strong>${status.status}</strong></td>
+                    <td style="text-align: center;">${status.count}</td>
+                    <td style="text-align: center;">${status.percentage}%</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ` : ''}
+
+          ${statistics.top_industries && statistics.top_industries.length > 0 ? `
+          <div class="section">
+            <h2 class="section-title">🏢 Top 5 Industrias</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Industria</th>
+                  <th style="text-align: center;">Cantidad</th>
+                  <th style="text-align: center;">Porcentaje</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${statistics.top_industries.map((industry, index) => `
+                  <tr>
+                    <td style="font-weight: bold; color: #3b82f6;">${index + 1}</td>
+                    <td><strong>${industry.name}</strong></td>
+                    <td style="text-align: center;">${industry.count}</td>
+                    <td style="text-align: center;">${industry.percentage}%</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ` : ''}
+
+          <div class="footer">
+            <p><strong>Sistema de Seguimiento de Egresados</strong></p>
+            <p>Este reporte contiene información confidencial y está destinado únicamente para uso administrativo</p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Abrir ventana de impresión
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Por favor, permite las ventanas emergentes para descargar el PDF');
+        setExporting(false);
+        return;
+      }
+
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+
+      // Esperar a que cargue y luego imprimir
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          // La ventana se cierra automáticamente después de imprimir o cancelar
+          setExporting(false);
+        }, 250);
+      };
+
+      console.log('✅ PDF generado exitosamente');
+    } catch (error) {
+      console.error("❌ Error generando PDF:", error);
+      alert("Error al generar el PDF. Por favor, intenta nuevamente.");
+      setExporting(false);
     }
   };
 
@@ -76,6 +294,20 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
           <IconLoader className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
           <p className="text-muted-foreground">Cargando estadísticas...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          onClick={loadStatistics}
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -107,7 +339,7 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{statistics.total_graduates}</div>
+            <div className="text-3xl font-bold">{statistics.total_graduates || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Egresados registrados
             </p>
@@ -122,7 +354,7 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{statistics.employed_count}</div>
+            <div className="text-3xl font-bold">{statistics.employed_count || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Con empleo activo
             </p>
@@ -138,14 +370,14 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold">{statistics.employment_rate}%</div>
+              <div className="text-3xl font-bold">{statistics.employment_rate || 0}%</div>
               <Badge variant="default" className="bg-green-500/10 text-green-500 border-green-500/20">
                 <IconTrendingUp className="h-3 w-3 mr-1" />
-                +5.2%
+                Activo
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              vs. período anterior
+              Índice actual
             </p>
           </CardContent>
         </Card>
@@ -158,7 +390,7 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">{statistics.average_salary_range}</div>
+            <div className="text-xl font-bold">{statistics.average_salary_range || 'N/A'}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Mensual promedio
             </p>
@@ -178,24 +410,30 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {statistics.employment_by_status.map((status, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{status.status}</span>
-                  <span className="text-muted-foreground">
-                    {status.count} ({status.percentage}%)
-                  </span>
+          {!statistics.employment_by_status || statistics.employment_by_status.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No hay datos de estados laborales disponibles
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {statistics.employment_by_status.map((status, index) => (
+                <div key={`status-${index}`} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{status.status}</span>
+                    <span className="text-muted-foreground">
+                      {status.count} ({status.percentage}%)
+                    </span>
+                  </div>
+                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${status.percentage}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all"
-                    style={{ width: `${status.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -212,29 +450,35 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {statistics.top_industries.map((industry, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">{index + 1}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-sm truncate">{industry.name}</span>
-                      <span className="text-sm text-muted-foreground ml-2">
-                        {industry.count} ({industry.percentage}%)
-                      </span>
+            {!statistics.top_industries || statistics.top_industries.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No hay datos de industrias disponibles
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {statistics.top_industries.map((industry, index) => (
+                  <div key={`industry-${index}`} className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-bold text-primary">{index + 1}</span>
                     </div>
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
-                        style={{ width: `${industry.percentage}%` }}
-                      />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-sm truncate">{industry.name}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          {industry.count} ({industry.percentage}%)
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
+                          style={{ width: `${industry.percentage}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -253,7 +497,7 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
             <div className="space-y-6">
               <div className="text-center">
                 <div className="text-5xl font-bold text-primary mb-2">
-                  {statistics.related_work_percentage}%
+                  {statistics.related_work_percentage || 0}%
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Trabajan en áreas relacionadas
@@ -297,15 +541,17 @@ export default function AdminStatistics({ token }: AdminStatisticsProps) {
             <div>
               <h4 className="font-semibold mb-1">Exportar Reporte Completo</h4>
               <p className="text-sm text-muted-foreground">
-                Descarga un reporte detallado con todas las estadísticas en formato PDF o Excel
+                Descarga un reporte detallado en formato PDF con todas las estadísticas
               </p>
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2 bg-white dark:bg-gray-800 border rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                Descargar PDF
-              </button>
-              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-                Descargar Excel
+              <button 
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white border rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                onClick={generatePDF}
+                disabled={exporting}
+              >
+                <IconFileTypePdf className="h-4 w-4" />
+                {exporting ? "Generando PDF..." : "Descargar PDF"}
               </button>
             </div>
           </div>

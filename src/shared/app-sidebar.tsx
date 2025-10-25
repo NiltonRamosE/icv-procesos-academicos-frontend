@@ -1,3 +1,4 @@
+// src/shared/app-sidebar.tsx
 import * as React from "react"
 import { NavMain } from "@/shared/sidebar/nav-main"
 import { NavSecondary } from "@/shared/sidebar/nav-secondary"
@@ -11,16 +12,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {navMainCollapse, navSimpleMain, navMainOptions} from "@/shared/site"
+import {
+  navMainCollapse, 
+  navSimpleMain, 
+  navMainOptions, 
+  navAdminSecondary
+} from "@/shared/site"
+
+interface User {
+  first_name?: string;
+  email?: string;
+  avatar?: string;
+  role?: string | string[];
+  roles?: string[];
+}
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   token?: string | null;
-  user?: {
-    first_name?: string;
-    email?: string;
-    avatar?: string;
-    role?: string;
-  } | null;
+  user?: User | null;
 };
 
 export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
@@ -31,18 +40,8 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
     token: token ?? "token_invalido"
   };
 
-  // FILTRAR EL MENÚ SEGÚN EL ROL
-  const filteredNav = navMainCollapse.map(item => ({
-    ...item,
-    items: item.items?.filter(subItem => {
-      // Si es student, ocultar cualquier item que contenga "crear" en el URL o título
-      if (user?.role === 'student') {
-        return !subItem.url.includes('crear') && !subItem.title.toLowerCase().includes('crear');
-      }
-      // Si no es student (teacher, admin), mostrar todo
-      return true;
-    }) || []
-  }));
+  // Determinar si el usuario es admin
+  const isAdmin = user?.role?.includes('admin') || user?.roles?.includes('admin');
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -61,8 +60,19 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={filteredNav} />
+        {/* NavMain ya filtra automáticamente los items de admin */}
+        <NavMain items={navMainCollapse} />
+        
         <NavSecondary items={navSimpleMain}/>
+        
+        {/* Opcional: Mostrar items de admin en NavSecondary también */}
+        {isAdmin && (
+          <NavSecondary 
+            items={navAdminSecondary} 
+            className="border-t pt-4 mt-4"
+          />
+        )}
+        
         <NavSecondary items={navMainOptions} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

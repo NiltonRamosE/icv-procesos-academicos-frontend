@@ -9,8 +9,6 @@ interface RecommendedCoursesProps {
 export default function RecommendedCourses({ courses }: RecommendedCoursesProps) {
   return (
     <div className="bg-gradient-to-br from-[#201a2f] via-[#111115] to-[#000000] rounded-2xl p-8 md:p-10 border border-[#848282]/20 shadow-2xl overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r"></div>
-
       <div className="relative">
         <div className="mb-6">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
