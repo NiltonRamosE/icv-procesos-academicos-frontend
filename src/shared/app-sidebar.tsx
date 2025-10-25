@@ -33,6 +33,8 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
 };
 
 export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
+  const [searchTerm, setSearchTerm] = React.useState('')
+
   const shownUser = {
     name: user?.first_name ?? "Invitado",
     email: user?.email ?? "—",
@@ -40,7 +42,6 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
     token: token ?? "token_invalido"
   };
 
-  // Determinar si el usuario es admin
   const isAdmin = user?.role?.includes('admin') || user?.roles?.includes('admin');
 
   return (
@@ -60,12 +61,11 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* NavMain ya filtra automáticamente los items de admin */}
-        <NavMain items={navMainCollapse} />
+        {/* NavMain con funcionalidad de búsqueda */}
+        <NavMain items={navMainCollapse} searchTerm={searchTerm} />
         
         <NavSecondary items={navSimpleMain}/>
         
-        {/* Opcional: Mostrar items de admin en NavSecondary también */}
         {isAdmin && (
           <NavSecondary 
             items={navAdminSecondary} 
@@ -73,7 +73,13 @@ export function AppSidebar({ token, user, ...props }: AppSidebarProps) {
           />
         )}
         
-        <NavSecondary items={navMainOptions} className="mt-auto" />
+        {/* NavSecondary con búsqueda */}
+        <NavSecondary 
+          items={navMainOptions} 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          className="mt-auto" 
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={shownUser} />
